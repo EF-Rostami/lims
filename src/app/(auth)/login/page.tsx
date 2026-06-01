@@ -73,7 +73,8 @@ export default function LoginPage() {
     try {
       await login(formData.email, formData.password, selectedSchema);
 
-      router.push("/lims/clients");
+      router.push("/dashboard");
+      router.refresh();
     } catch (err: any) {
       setError(
         err?.response?.data?.detail ||
