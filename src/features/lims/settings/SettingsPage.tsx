@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LimsPageLayout } from "@/features/lims/components/LimsPageLayout";
 import { LimsTable } from "@/features/lims/components/LimsTable";
+import { BrandingSettingsTab } from "@/features/lims/branding/BrandingSettingsTab";
 import { useSettings, useCreateSetting, useUpdateSetting, useDeleteSetting } from "./settings.queries";
 import type { SettingListItem, SettingCreate, SettingUpdate } from "./settings.api";
 
@@ -50,11 +52,25 @@ export function SettingsPage() {
   return (
     <LimsPageLayout
       title="Lab Settings"
-      description="Key-value configuration for the laboratory"
-      actionLabel="Add Setting"
-      onAction={() => { setCreateForm(emptyCreate()); setCreateOpen(true); }}
+      description="Key-value configuration and tenant branding"
     >
-      <LimsTable
+      <Tabs defaultValue="general">
+        <TabsList className="mb-4">
+          <TabsTrigger value="general">General Settings</TabsTrigger>
+          <TabsTrigger value="branding">Branding</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="branding">
+          <BrandingSettingsTab />
+        </TabsContent>
+
+        <TabsContent value="general">
+          <div className="flex justify-end mb-3">
+            <Button size="sm" onClick={() => { setCreateForm(emptyCreate()); setCreateOpen(true); }}>
+              <Plus className="h-3.5 w-3.5 mr-1" /> Add Setting
+            </Button>
+          </div>
+          <LimsTable
         data={settings}
         isLoading={isLoading}
         emptyMessage="No settings configured."
@@ -125,6 +141,8 @@ export function SettingsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+        </TabsContent>
+      </Tabs>
     </LimsPageLayout>
   );
 }

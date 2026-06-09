@@ -1,11 +1,21 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { LogOut, UserCircle, Settings } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useLimsAuthStore } from "@/features/lims-auth/lims-auth.store";
 import { PermissionGate } from "../protection/PermissionGate";
-import { LogOut, Bell } from "lucide-react";
-
+import { NotificationBell } from "./NotificationBell";
 
 export function Header() {
+  const router = useRouter();
   const user = useLimsAuthStore((state) => state.user);
   const logout = useLimsAuthStore((state) => state.logout);
 
@@ -14,15 +24,18 @@ export function Header() {
       await logout();
     } finally {
       window.location.href = "/login";
-      // router.replace("/login");
     }
   };
+
+  const initials = user?.display_name
+    ? user.display_name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
+    : (user?.email?.[0] ?? "U").toUpperCase();
 
   return (
     <header className="h-16 border-b bg-background flex items-center justify-between px-6">
       <div className="flex items-center gap-4">
         <span className="text-muted-foreground">
-          Welcome back, {user?.username || "User"}
+          Welcome back, {user?.display_name || user?.username || "User"}
         </span>
       </div>
 
@@ -33,28 +46,43 @@ export function Header() {
           </button>
         </PermissionGate>
 
-        <button title="Notifications" className="p-2 hover:bg-muted rounded-full">
-          <Bell size={20} />
-        </button>
+        <NotificationBell />
 
-        <div className="flex items-center gap-3 ml-4 border-l pl-4">
-          <div className="text-right">
-            <p className="text-sm font-medium leading-none">
-              {user?.email}
-            </p>
-
-            <p className="text-xs text-muted-foreground capitalize">
-              {user?.user_type} · {user?.roles?.join(", ")}
-            </p>
-          </div>
-
-          <button
-            onClick={handleLogout}
-            className="p-2 text-destructive hover:bg-destructive/10 rounded-full"
-            title="Logout"
-          >
-            <LogOut size={20} />
-          </button>
+        <div className="ml-2 border-l pl-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 rounded-full hover:bg-muted px-2 py-1 transition-colors">
+                <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold select-none">
+                  {initials}
+                </div>
+                <div className="text-right hidden sm:block">
+                  <p className="text-sm font-medium leading-none">{user?.display_name || user?.email}</p>
+                  <p className="text-xs text-muted-foreground capitalize mt-0.5">
+                    {user?.roles?.join(", ") || user?.user_type}
+                  </p>
+                </div>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuLabel className="font-normal">
+                <p className="text-sm font-medium">{user?.display_name || "Account"}</p>
+                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => router.push("/lims/account")}>
+                <Settings className="h-4 w-4 mr-2" />
+                Account Settings
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="text-destructive focus:text-destructive"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>

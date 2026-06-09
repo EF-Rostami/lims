@@ -1879,6 +1879,8 @@ export interface components {
              * @default true
              */
             is_active: boolean;
+            /** Headcount — null means unlimited */
+            headcount?: number | null;
         };
         /** PositionRead */
         PositionRead: {
@@ -1897,6 +1899,8 @@ export interface components {
             is_active: boolean;
             /** Id */
             id: number;
+            /** Headcount — null means unlimited */
+            headcount?: number | null;
         };
         /** PositionTree */
         PositionTree: {
@@ -1915,6 +1919,8 @@ export interface components {
             is_active: boolean;
             /** Id */
             id: number;
+            /** Headcount — null means unlimited */
+            headcount?: number | null;
             /**
              * Subordinates
              * @default []
@@ -1933,6 +1939,8 @@ export interface components {
             reports_to_position_id?: number | null;
             /** Is Active */
             is_active?: boolean | null;
+            /** Headcount — null means unlimited */
+            headcount?: number | null;
         };
         /** PresignedUrlResponse */
         PresignedUrlResponse: {

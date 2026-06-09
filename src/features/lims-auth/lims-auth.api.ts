@@ -11,6 +11,17 @@ export type TenantUserMetadata =
 
 export type LimsUserMetadata = TenantUserMetadata;
 
+export interface MFARequiredResponse {
+  mfa_required: true;
+  mfa_token: string;
+}
+
+export type LoginResult = TenantTokenResponse | MFARequiredResponse;
+
+function isMFARequired(r: LoginResult): r is MFARequiredResponse {
+  return (r as MFARequiredResponse).mfa_required === true;
+}
+
 const API_BASE =
   process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
@@ -19,12 +30,7 @@ export const limsAuthApi = {
     email: string,
     password: string,
     tenantSchema: string
-  ): Promise<TenantTokenResponse> => {
-    const payload: TenantLoginRequest = {
-      email,
-      password,
-    };
-
+  ): Promise<LoginResult> => {
     const res = await fetch(`${API_BASE}/api/v1/lims/auth/login`, {
       method: "POST",
       credentials: "include",
@@ -32,11 +38,34 @@ export const limsAuthApi = {
         "Content-Type": "application/json",
         "x-tenant-schema": tenantSchema,
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ email, password }),
     });
 
     if (!res.ok) {
       throw new Error("Tenant login failed");
+    }
+
+    return res.json();
+  },
+
+  verifyMfa: async (
+    code: string,
+    mfaToken: string,
+    tenantSchema: string
+  ): Promise<TenantTokenResponse> => {
+    const res = await fetch(`${API_BASE}/api/v1/lims/auth/mfa/verify`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        "x-tenant-schema": tenantSchema,
+      },
+      body: JSON.stringify({ code, mfa_token: mfaToken }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.detail || "MFA verification failed");
     }
 
     return res.json();
@@ -89,3 +118,5 @@ export const limsAuthApi = {
     });
   },
 };
+
+export { isMFARequired };
