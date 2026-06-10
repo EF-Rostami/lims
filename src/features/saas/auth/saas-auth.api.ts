@@ -22,12 +22,31 @@ export interface SaasAuthResponse {
   user: SaasUser;
 }
 
+export interface SaasMFARequiredResponse {
+  mfa_required: true;
+  mfa_token: string;
+}
+
+export type SaasLoginResult = SaasAuthResponse | SaasMFARequiredResponse;
+
+export function isMFARequired(r: SaasLoginResult): r is SaasMFARequiredResponse {
+  return "mfa_required" in r && r.mfa_required === true;
+}
+
 export const saasAuthApi = {
-  login: async (payload: SaasLoginPayload): Promise<SaasAuthResponse> => {
-    const res = await saasApi.post<SaasAuthResponse>(
+  login: async (payload: SaasLoginPayload): Promise<SaasLoginResult> => {
+    const res = await saasApi.post<SaasLoginResult>(
       "/saas/auth/login",
       payload
     );
+    return res.data;
+  },
+
+  verifyMfa: async (mfa_token: string, code: string): Promise<SaasAuthResponse> => {
+    const res = await saasApi.post<SaasAuthResponse>("/saas/auth/mfa/verify", {
+      mfa_token,
+      code,
+    });
     return res.data;
   },
 

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, XCircle, AlertTriangle, Plus, Pencil, Trash2, ShieldCheck } from "lucide-react";
+import { CheckCircle, XCircle, AlertTriangle, Plus, Pencil, Trash2, ShieldCheck, FlaskConical } from "lucide-react";
+import { useResults } from "@/features/lims/results/results.queries";
+import type { ResultRead } from "@/features/lims/results/results.api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -1021,9 +1023,98 @@ function InstrumentFormDialog({
   );
 }
 
+// ── Results Tab ───────────────────────────────────────────────────────────────
+
+const STATUS_COLORS: Record<string, string> = {
+  PENDING:   "bg-slate-100 text-slate-600",
+  ENTERED:   "bg-blue-100 text-blue-700",
+  VALIDATED: "bg-amber-100 text-amber-700",
+  APPROVED:  "bg-green-100 text-green-700",
+  REJECTED:  "bg-red-100 text-red-700",
+};
+
+const FLAG_COLORS: Record<string, string> = {
+  NORMAL:        "text-green-700",
+  HIGH:          "text-amber-700 font-semibold",
+  LOW:           "text-blue-700 font-semibold",
+  CRITICAL_HIGH: "text-red-700 font-bold",
+  CRITICAL_LOW:  "text-red-700 font-bold",
+  ABNORMAL:      "text-purple-700",
+};
+
+function ResultsTab({ instrument }: { instrument: InstrumentRead }) {
+  const { data: results = [], isLoading } = useResults({ instrument_id: instrument.id });
+
+  if (isLoading) {
+    return <p className="text-sm text-muted-foreground py-4">Loading results…</p>;
+  }
+
+  if (results.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <FlaskConical className="h-8 w-8 text-muted-foreground/30 mb-2" />
+        <p className="text-sm text-muted-foreground">No results recorded for this instrument yet.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <p className="text-xs text-muted-foreground mb-3">
+        {results.length} result{results.length !== 1 ? "s" : ""} recorded on <strong>{instrument.name}</strong>
+      </p>
+      <div className="rounded-lg border overflow-hidden">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="bg-muted/40 border-b">
+              <th className="px-3 py-2 text-left font-semibold text-muted-foreground uppercase tracking-wide">Test</th>
+              <th className="px-3 py-2 text-left font-semibold text-muted-foreground uppercase tracking-wide">Value</th>
+              <th className="px-3 py-2 text-left font-semibold text-muted-foreground uppercase tracking-wide">Flag</th>
+              <th className="px-3 py-2 text-left font-semibold text-muted-foreground uppercase tracking-wide">Run Date</th>
+              <th className="px-3 py-2 text-left font-semibold text-muted-foreground uppercase tracking-wide">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(results as ResultRead[]).map((r) => (
+              <tr key={r.id} className="border-b last:border-0 hover:bg-muted/20">
+                <td className="px-3 py-2">
+                  <p className="font-medium text-foreground">{r.test_name}</p>
+                  <p className="text-muted-foreground font-mono">{r.test_code}</p>
+                </td>
+                <td className="px-3 py-2">
+                  {r.result_value
+                    ? <span>{r.result_value}{r.result_unit && <span className="text-muted-foreground ml-1">{r.result_unit}</span>}</span>
+                    : <span className="text-muted-foreground/40">—</span>
+                  }
+                </td>
+                <td className="px-3 py-2">
+                  {r.result_flag
+                    ? <span className={FLAG_COLORS[r.result_flag] ?? ""}>{r.result_flag.replace("_", " ")}</span>
+                    : <span className="text-muted-foreground/40">—</span>
+                  }
+                </td>
+                <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">
+                  {r.run_date
+                    ? new Date(r.run_date).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
+                    : "—"}
+                </td>
+                <td className="px-3 py-2">
+                  <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${STATUS_COLORS[r.status] ?? ""}`}>
+                    {r.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 // ── Page Root ─────────────────────────────────────────────────────────────────
 
-const TABS = ["Details", "Calibration", "Int. Checks", "IQ/OQ/PQ"] as const;
+const TABS = ["Details", "Calibration", "Int. Checks", "IQ/OQ/PQ", "Results"] as const;
 type Tab = (typeof TABS)[number];
 
 export function InstrumentsPage() {
@@ -1090,6 +1181,7 @@ export function InstrumentsPage() {
               {tab === "Calibration" && <CalibrationTab instrument={selected} />}
               {tab === "Int. Checks" && <ChecksTab instrument={selected} />}
               {tab === "IQ/OQ/PQ" && <QualificationsTab instrument={selected} />}
+              {tab === "Results" && <ResultsTab instrument={selected} />}
             </div>
           </>
         )}
