@@ -292,7 +292,7 @@ function AuditDetailPanel({
           <div className="flex items-center gap-2 mb-1">
             <span className="font-mono text-sm text-slate-500">{audit.reference_number}</span>
             <StatusBadge status={audit.status} />
-            <span className="text-xs text-slate-400 capitalize">{audit.audit_type.replace("_", " ")}</span>
+            <span className="text-xs text-slate-400 capitalize">{audit.audit_type?.replace("_", " ")}</span>
           </div>
           <h2 className="text-xl font-bold text-slate-800">{audit.title}</h2>
           {audit.scope && <p className="text-sm text-slate-500 mt-1">{audit.scope}</p>}

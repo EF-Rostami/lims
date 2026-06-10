@@ -276,7 +276,7 @@ function BudgetsTab() {
                 variance += contrib * contrib;
               }
               const uc = Math.sqrt(variance);
-              const U = selectedBudget.coverage_factor * uc;
+              const U = (selectedBudget.coverage_factor ?? 2) * uc;
               return (
                 <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-4 grid grid-cols-3 gap-4 text-sm">
                   <div>
@@ -567,7 +567,7 @@ function EntriesTab() {
               {[
                 { label: "Type A  u_A", value: fmt(selectedEntry.type_a_u, 6) },
                 { label: "Combined  u_c", value: fmt(selectedEntry.combined_u, 6) },
-                { label: `k = ${selectedEntry.coverage_factor}`, value: `(${selectedEntry.confidence_level ?? "—"}% conf.)` },
+                { label: `k = ${selectedEntry.coverage_factor}`, value: `(${selectedEntry.budget?.confidence_level ?? "—"}% conf.)` },
                 { label: "Expanded  U", value: fmt(selectedEntry.expanded_u, 6) },
               ].map(row => (
                 <div key={row.label} className="bg-white border border-slate-200 rounded-lg p-3 text-center">
@@ -776,11 +776,11 @@ function RulesTab() {
                 <td className="px-4 py-2 font-medium text-slate-800">{rule.name}</td>
                 <td className="px-4 py-2 text-slate-600">{rule.method_code ?? `#${rule.method_id}`}</td>
                 <td className="px-4 py-2 text-right">
-                  <span className={`font-mono font-bold ${rule.guard_band_factor === 0 ? "text-slate-500" : rule.guard_band_factor >= 1 ? "text-green-700" : "text-yellow-700"}`}>
+                  <span className={`font-mono font-bold ${(rule.guard_band_factor ?? 0) === 0 ? "text-slate-500" : (rule.guard_band_factor ?? 0) >= 1 ? "text-green-700" : "text-yellow-700"}`}>
                     {rule.guard_band_factor}
                   </span>
                   <span className="text-xs text-slate-400 ml-1">
-                    {rule.guard_band_factor === 0 ? "(binary)" : rule.guard_band_factor === 1 ? "(conservative)" : ""}
+                    {(rule.guard_band_factor ?? 0) === 0 ? "(binary)" : rule.guard_band_factor === 1 ? "(conservative)" : ""}
                   </span>
                 </td>
                 <td className="px-4 py-2 text-slate-500">{rule.description ?? "—"}</td>
