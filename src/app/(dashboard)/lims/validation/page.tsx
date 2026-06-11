@@ -365,7 +365,7 @@ function CriteriaTab({ studyId }: { studyId: number | null }) {
   }
 
   async function saveCriteria() {
-    if (!editParam) return;
+    if (!editParam || !study) return;
     await upsertCriteria.mutateAsync({
       studyId: study.id,
       data: { parameter: editParam, ...criteriaForm } as ValidationCriteriaCreate,
@@ -568,6 +568,7 @@ function RunsTab({ studyId }: { studyId: number | null }) {
 
   async function handleCreateRun(e: React.FormEvent) {
     e.preventDefault();
+    if (!study) return;
     const nextNum = (study.runs.length > 0 ? Math.max(...study.runs.map(r => r.run_number)) : 0) + 1;
     const created = await createRun.mutateAsync({
       studyId: study.id,
@@ -579,7 +580,7 @@ function RunsTab({ studyId }: { studyId: number | null }) {
   }
 
   async function handleAddResult(runId: number) {
-    if (!resultForm.parameter) return;
+    if (!resultForm.parameter || !study) return;
     await addResult.mutateAsync({
       runId,
       studyId: study.id,
