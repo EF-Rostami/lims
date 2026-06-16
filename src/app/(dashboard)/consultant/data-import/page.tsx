@@ -48,8 +48,8 @@ const SHEETS = [
   },
   {
     name: "Test Methods",
-    headers: ["code*", "name*", "unit", "version", "description"],
-    example: [["TM-PH-01", "pH Measurement", "pH", "1.0", "Standard pH measurement procedure"]],
+    headers: ["code*", "name*", "unit", "description"],
+    example: [["TM-PH-01", "pH Measurement", "pH", "Standard pH measurement procedure"]],
     note: "code must be unique across all test methods.",
   },
   {

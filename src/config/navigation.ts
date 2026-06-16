@@ -5,7 +5,7 @@ import {
   BarChart3, AlertTriangle, ScrollText, FolderOpen, PenLine,
   Building2, Briefcase, ShieldCheck, GanttChart, UserCog, FileSpreadsheet,
   Package, Thermometer, Atom, GraduationCap, Beaker, Activity, Sigma, ClipboardCheck,
-  GitBranch, Bell,
+  GitBranch, Bell, MessageSquareWarning, FileText,
 } from "lucide-react";
 
 export interface NavItem {
@@ -88,6 +88,8 @@ export const sidebarConfig: NavItem[] = [
   { title: "Meas. Uncertainty", href: "/lims/mu", icon: Sigma, section: "lims" },
   { title: "Internal Audits", href: "/lims/ia", icon: ClipboardCheck, section: "lims" },
   { title: "Reports", href: "/lims/reports", icon: BarChart3, section: "lims" },
+  { title: "Documents", href: "/lims/qms-documents", icon: FileText, section: "lims" },
+  { title: "Complaints", href: "/lims/complaints", icon: MessageSquareWarning, section: "lims" },
   { title: "Findings", href: "/lims/findings", icon: AlertTriangle, section: "lims" },
   { title: "CAPA", href: "/lims/capa", icon: GitBranch, section: "lims" },
   { title: "Files", href: "/lims/files", icon: FolderOpen, section: "lims" },
