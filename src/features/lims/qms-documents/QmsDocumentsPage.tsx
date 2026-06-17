@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { MoreHorizontal, Pencil, GitFork, ArrowRight } from "lucide-react";
-import { lifecycleApi } from "@/features/lims/consultancy/lifecycle.api";
+import { MoreHorizontal, Pencil, GitFork } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,17 +24,6 @@ import type {
   InternalDocumentCreate,
   InternalDocumentRevise,
 } from "./qms-documents.api";
-
-const LC_DOC_NEXT: Record<string, string> = {
-  "DRAFT": "UNDER_REVIEW",
-  "draft": "UNDER_REVIEW",
-  "UNDER_REVIEW": "APPROVED",
-  "under_review": "APPROVED",
-  "APPROVED": "ACTIVE",
-  "approved": "ACTIVE",
-  "ACTIVE": "RETIRED",
-  "active": "RETIRED",
-};
 
 const emptyCreate = (): InternalDocumentCreate => ({
   title: "",
@@ -71,23 +58,11 @@ export function QmsDocumentsPage() {
   const [reviseTarget, setReviseTarget] = useState<InternalDocumentRead | null>(null);
   const [reviseForm, setReviseForm] = useState<InternalDocumentRevise>(emptyRevise());
 
-  const [lcTarget, setLcTarget] = useState<InternalDocumentRead | null>(null);
-  const [lcNote, setLcNote] = useState("");
-
   const { data: documents = [], isLoading } = useQmsDocuments();
   const { data: docTypes = [] } = useDocumentTypes();
   const createDoc = useCreateQmsDocument();
   const updateDoc = useUpdateQmsDocument();
   const reviseDoc = useReviseQmsDocument();
-
-  const qc = useQueryClient();
-  const transitionLc = useMutation({
-    mutationFn: () => lifecycleApi.transitionDocument(lcTarget!.id, {
-      new_status: LC_DOC_NEXT[lcTarget!.status],
-      audit_note: lcNote || null,
-    }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["lims", "qms-documents"] }); setLcTarget(null); setLcNote(""); },
-  });
 
   const openCreate = () => {
     setCreateForm(emptyCreate());
@@ -195,12 +170,6 @@ export function QmsDocumentsPage() {
                   <DropdownMenuItem onClick={() => openEdit(d)}>
                     <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
                   </DropdownMenuItem>
-                  {LC_DOC_NEXT[d.status] && (
-                    <DropdownMenuItem onClick={() => { setLcTarget(d); setLcNote(""); }}>
-                      <ArrowRight className="h-3.5 w-3.5 mr-2 text-violet-600" />
-                      <span className="text-violet-700">→ {LC_DOC_NEXT[d.status].replace(/_/g, " ")}</span>
-                    </DropdownMenuItem>
-                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => openRevise(d)}>
                     <GitFork className="h-3.5 w-3.5 mr-2" /> Create Revision
@@ -396,30 +365,6 @@ export function QmsDocumentsPage() {
               </Button>
             </DialogFooter>
           </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* LC Transition dialog */}
-      <Dialog open={!!lcTarget} onOpenChange={() => setLcTarget(null)}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle>Transition Document Status</DialogTitle></DialogHeader>
-          <div className="space-y-3 mt-2">
-            <p className="text-sm text-muted-foreground">
-              Move <strong>{lcTarget?.system_id}</strong> from{" "}
-              <span className="font-semibold">{lcTarget?.status.toUpperCase()}</span> to{" "}
-              <span className="font-semibold text-violet-700">
-                {LC_DOC_NEXT[lcTarget?.status ?? ""]?.replace(/_/g, " ")}
-              </span>.
-            </p>
-            <div className="space-y-1">
-              <Label>Audit Note <span className="text-muted-foreground">(optional)</span></Label>
-              <Textarea rows={2} value={lcNote} onChange={(e) => setLcNote(e.target.value)} placeholder="Reason for transition…" />
-            </div>
-          </div>
-          <DialogFooter className="mt-3">
-            <Button variant="outline" onClick={() => setLcTarget(null)}>Cancel</Button>
-            <Button onClick={() => transitionLc.mutate()} disabled={transitionLc.isPending}>Confirm</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </LimsPageLayout>
