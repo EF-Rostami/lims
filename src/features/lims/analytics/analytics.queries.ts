@@ -43,3 +43,12 @@ export function useQCAnalytics(days = 30) {
     staleTime: STALE,
   });
 }
+
+export function useComplianceSummary() {
+  return useQuery({
+    queryKey: ["analytics", "compliance"],
+    queryFn: () => analyticsApi.getCompliance(),
+    staleTime: STALE,
+    refetchInterval: STALE,
+  });
+}

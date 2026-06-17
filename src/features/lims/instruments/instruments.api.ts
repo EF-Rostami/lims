@@ -1,7 +1,9 @@
 import { limsApi, extractPage } from "@/lib/lims-api";
 import type { components } from "@/generated/lims/api";
 
-export type InstrumentRead = components["schemas"]["InstrumentRead"];
+export type InstrumentRead = components["schemas"]["InstrumentRead"] & {
+  lifecycle_status?: string | null;
+};
 export type InstrumentCreate = components["schemas"]["InstrumentCreate"];
 export type InstrumentUpdate = components["schemas"]["InstrumentUpdate"];
 export type InstrumentStatus = components["schemas"]["InstrumentStatus"];

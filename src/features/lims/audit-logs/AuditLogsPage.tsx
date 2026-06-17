@@ -58,22 +58,29 @@ export function AuditLogsPage() {
         isLoading={isLoading}
         emptyMessage="No audit log entries match your filters."
         columns={[
-          { header: "Time", render: (l) => <span className="text-slate-500 text-xs whitespace-nowrap">{new Date(l.created_at).toLocaleString()}</span> },
-          { header: "Entity", render: (l) => <span className="font-mono text-xs">{l.entity_type} {l.entity_id ? `#${l.entity_id}` : ""}</span> },
+          { header: "Time", render: (l) => <span className="text-slate-500 text-xs whitespace-nowrap">{new Date(l.performed_at).toLocaleString()}</span> },
+          { header: "Entity", render: (l) => <span className="font-mono text-xs">{l.entity_type ?? "—"} {l.entity_id ? `#${l.entity_id}` : ""}</span> },
           { header: "Action", render: (l) => <span className="font-medium text-sm">{l.action}</span> },
-          { header: "User", render: (l) => <span className="text-slate-500 text-xs">{l.user_id ? `#${l.user_id}` : "system"}</span> },
           {
-            header: "Changes",
+            header: "User",
+            render: (l) => l.user_email ? (
+              <span className="text-xs text-slate-600">{l.user_email}</span>
+            ) : (
+              <span className="text-slate-400 text-xs">system</span>
+            ),
+          },
+          {
+            header: "Description",
             className: "max-w-xs",
-            render: (l) => l.changes ? (
-              <pre className="text-xs text-slate-500 truncate max-w-xs">{JSON.stringify(l.changes)}</pre>
+            render: (l) => l.description ? (
+              <span className="text-xs text-slate-500 truncate block max-w-xs">{l.description}</span>
             ) : <span className="text-slate-400">—</span>,
           },
         ]}
       />
 
       {/* Pagination */}
-      {data && data.total > (filters.page_size ?? 50) && (
+      {data && data.total_pages > 1 && (
         <div className="flex items-center justify-end gap-2">
           <Button
             size="sm"
@@ -84,12 +91,12 @@ export function AuditLogsPage() {
             Previous
           </Button>
           <span className="text-sm text-slate-500">
-            Page {filters.page ?? 1} of {Math.ceil(data.total / (filters.page_size ?? 50))}
+            Page {filters.page ?? 1} of {data.total_pages}
           </span>
           <Button
             size="sm"
             variant="outline"
-            disabled={(filters.page ?? 1) >= Math.ceil(data.total / (filters.page_size ?? 50))}
+            disabled={(filters.page ?? 1) >= data.total_pages}
             onClick={() => setFilters((f) => ({ ...f, page: (f.page ?? 1) + 1 }))}
           >
             Next

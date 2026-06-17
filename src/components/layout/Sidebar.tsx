@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 const SECTION_LABELS: Record<string, string> = {
   main: "",
   qms: "QMS Setup",
+  accreditation: "Accreditation",
   lims: "Laboratory",
   admin: "Administration",
 };
@@ -41,7 +42,7 @@ export function Sidebar() {
   });
 
   const sections = groupBySections(visibleItems);
-  const sectionOrder = ["main", "qms", "lims", "admin"];
+  const sectionOrder = ["main", "qms", "accreditation", "lims", "admin"];
 
   const hasBg = !!sidebarBgHex;
 

@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, XCircle, AlertTriangle, Plus, Pencil, Trash2, ShieldCheck } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CheckCircle, XCircle, AlertTriangle, Plus, Pencil, Trash2, ShieldCheck, FlaskConical, ArrowRight } from "lucide-react";
+import { lifecycleApi } from "@/features/lims/consultancy/lifecycle.api";
+import { useResults } from "@/features/lims/results/results.queries";
+import type { ResultRead } from "@/features/lims/results/results.api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -128,6 +132,15 @@ function InstrumentListPanel({
 
 // ── Details Tab ───────────────────────────────────────────────────────────────
 
+const LC_INSTRUMENT_NEXT: Record<string, string> = {
+  "__null__": "UNVERIFIED",
+  "UNVERIFIED": "CALIBRATION_PENDING",
+  "CALIBRATION_PENDING": "CALIBRATED",
+  "CALIBRATED": "APPROVED",
+  "APPROVED": "OUT_OF_SERVICE",
+  "OUT_OF_SERVICE": "CALIBRATION_PENDING",
+};
+
 function DetailsTab({ instrument, onEdit, onDelete }: { instrument: InstrumentRead; onEdit: () => void; onDelete: () => void }) {
   const { data: logs = [], isLoading } = useMaintenance(instrument.id);
   const [showMaint, setShowMaint] = useState(false);
@@ -135,6 +148,15 @@ function DetailsTab({ instrument, onEdit, onDelete }: { instrument: InstrumentRe
     action: "", notes: null, performed_at: new Date().toISOString(),
   });
   const logMaint = useLogMaintenance();
+
+  const qc = useQueryClient();
+  const [showLcDialog, setShowLcDialog] = useState(false);
+  const [lcNote, setLcNote] = useState("");
+  const lcNextStatus = LC_INSTRUMENT_NEXT[instrument.lifecycle_status ?? "__null__"];
+  const transitionLc = useMutation({
+    mutationFn: () => lifecycleApi.transitionInstrument(instrument.id, { new_status: lcNextStatus, audit_note: lcNote || null }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["lims", "instruments"] }); setShowLcDialog(false); setLcNote(""); },
+  });
 
   const handleMaint = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,9 +200,17 @@ function DetailsTab({ instrument, onEdit, onDelete }: { instrument: InstrumentRe
         )}
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap items-center">
         <LimsStatusBadge status={instrument.status} />
         <LimsStatusBadge status={instrument.calibration_status} />
+        <span className="px-2 py-0.5 rounded text-xs font-medium bg-violet-100 text-violet-700">
+          LC: {instrument.lifecycle_status ? instrument.lifecycle_status.replace(/_/g, " ") : "Not started"}
+        </span>
+        {lcNextStatus && (
+          <Button size="sm" variant="outline" className="h-6 px-2 text-xs" onClick={() => setShowLcDialog(true)}>
+            <ArrowRight className="h-3 w-3 mr-1" />{lcNextStatus.replace(/_/g, " ")}
+          </Button>
+        )}
       </div>
 
       {instrument.notes && (
@@ -237,6 +267,26 @@ function DetailsTab({ instrument, onEdit, onDelete }: { instrument: InstrumentRe
               <Button type="submit" disabled={logMaint.isPending}>Log</Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showLcDialog} onOpenChange={setShowLcDialog}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>Lifecycle Transition</DialogTitle></DialogHeader>
+          <div className="space-y-3 mt-2">
+            <p className="text-sm text-muted-foreground">
+              Transition <strong>{instrument.name}</strong> to{" "}
+              <span className="font-semibold text-violet-700">{lcNextStatus?.replace(/_/g, " ")}</span>.
+            </p>
+            <div className="space-y-1">
+              <Label>Audit Note <span className="text-muted-foreground">(optional)</span></Label>
+              <Textarea rows={2} value={lcNote} onChange={(e) => setLcNote(e.target.value)} placeholder="Reason for transition…" />
+            </div>
+          </div>
+          <DialogFooter className="mt-3">
+            <Button variant="outline" onClick={() => setShowLcDialog(false)}>Cancel</Button>
+            <Button onClick={() => transitionLc.mutate()} disabled={transitionLc.isPending}>Confirm</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
@@ -1021,9 +1071,98 @@ function InstrumentFormDialog({
   );
 }
 
+// ── Results Tab ───────────────────────────────────────────────────────────────
+
+const STATUS_COLORS: Record<string, string> = {
+  PENDING:   "bg-slate-100 text-slate-600",
+  ENTERED:   "bg-blue-100 text-blue-700",
+  VALIDATED: "bg-amber-100 text-amber-700",
+  APPROVED:  "bg-green-100 text-green-700",
+  REJECTED:  "bg-red-100 text-red-700",
+};
+
+const FLAG_COLORS: Record<string, string> = {
+  NORMAL:        "text-green-700",
+  HIGH:          "text-amber-700 font-semibold",
+  LOW:           "text-blue-700 font-semibold",
+  CRITICAL_HIGH: "text-red-700 font-bold",
+  CRITICAL_LOW:  "text-red-700 font-bold",
+  ABNORMAL:      "text-purple-700",
+};
+
+function ResultsTab({ instrument }: { instrument: InstrumentRead }) {
+  const { data: results = [], isLoading } = useResults({ instrument_id: instrument.id });
+
+  if (isLoading) {
+    return <p className="text-sm text-muted-foreground py-4">Loading results…</p>;
+  }
+
+  if (results.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <FlaskConical className="h-8 w-8 text-muted-foreground/30 mb-2" />
+        <p className="text-sm text-muted-foreground">No results recorded for this instrument yet.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <p className="text-xs text-muted-foreground mb-3">
+        {results.length} result{results.length !== 1 ? "s" : ""} recorded on <strong>{instrument.name}</strong>
+      </p>
+      <div className="rounded-lg border overflow-hidden">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="bg-muted/40 border-b">
+              <th className="px-3 py-2 text-left font-semibold text-muted-foreground uppercase tracking-wide">Test</th>
+              <th className="px-3 py-2 text-left font-semibold text-muted-foreground uppercase tracking-wide">Value</th>
+              <th className="px-3 py-2 text-left font-semibold text-muted-foreground uppercase tracking-wide">Flag</th>
+              <th className="px-3 py-2 text-left font-semibold text-muted-foreground uppercase tracking-wide">Run Date</th>
+              <th className="px-3 py-2 text-left font-semibold text-muted-foreground uppercase tracking-wide">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(results as ResultRead[]).map((r) => (
+              <tr key={r.id} className="border-b last:border-0 hover:bg-muted/20">
+                <td className="px-3 py-2">
+                  <p className="font-medium text-foreground">{r.test_name}</p>
+                  <p className="text-muted-foreground font-mono">{r.test_code}</p>
+                </td>
+                <td className="px-3 py-2">
+                  {r.result_value
+                    ? <span>{r.result_value}{r.result_unit && <span className="text-muted-foreground ml-1">{r.result_unit}</span>}</span>
+                    : <span className="text-muted-foreground/40">—</span>
+                  }
+                </td>
+                <td className="px-3 py-2">
+                  {r.result_flag
+                    ? <span className={FLAG_COLORS[r.result_flag] ?? ""}>{r.result_flag.replace("_", " ")}</span>
+                    : <span className="text-muted-foreground/40">—</span>
+                  }
+                </td>
+                <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">
+                  {r.run_date
+                    ? new Date(r.run_date).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
+                    : "—"}
+                </td>
+                <td className="px-3 py-2">
+                  <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${STATUS_COLORS[r.status] ?? ""}`}>
+                    {r.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 // ── Page Root ─────────────────────────────────────────────────────────────────
 
-const TABS = ["Details", "Calibration", "Int. Checks", "IQ/OQ/PQ"] as const;
+const TABS = ["Details", "Calibration", "Int. Checks", "IQ/OQ/PQ", "Results"] as const;
 type Tab = (typeof TABS)[number];
 
 export function InstrumentsPage() {
@@ -1090,6 +1229,7 @@ export function InstrumentsPage() {
               {tab === "Calibration" && <CalibrationTab instrument={selected} />}
               {tab === "Int. Checks" && <ChecksTab instrument={selected} />}
               {tab === "IQ/OQ/PQ" && <QualificationsTab instrument={selected} />}
+              {tab === "Results" && <ResultsTab instrument={selected} />}
             </div>
           </>
         )}

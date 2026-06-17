@@ -14,6 +14,7 @@ import {
   UserCog,
   Receipt,
   LogOut,
+  UserCircle,
 } from "lucide-react";
 import { useSaasAuthStore } from "@/features/saas/auth/saas-auth.store";
 import { SaasAuthBootstrap } from "@/features/saas/auth/SaasAuthBootstrap";
@@ -28,6 +29,7 @@ const navItems = [
   { label: "Customers", href: "/saas/customers", icon: Users },
   { label: "Platform Users", href: "/saas/users", icon: UserCog },
   { label: "Billing", href: "/saas/billing", icon: Receipt },
+  { label: "Account", href: "/saas/account", icon: UserCircle },
 ];
 
 function SaasLayoutContent({ children }: { children: React.ReactNode }) {

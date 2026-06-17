@@ -33,8 +33,10 @@ export function useCreateCompetenceRecord() {
     mutationFn: (data: CompetenceRecordCreate) => competenceApi.createRecord(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["competence", "records"] });
-      qc.invalidateQueries({ queryKey: KEYS.matrix });
-      qc.invalidateQueries({ queryKey: ["competence", "expiring"] });
+      // Mark matrix stale but don't re-fetch immediately — it's expensive.
+      // It will re-fetch automatically when the Matrix tab is next activated.
+      qc.invalidateQueries({ queryKey: KEYS.matrix, refetchType: "none" });
+      qc.invalidateQueries({ queryKey: ["competence", "expiring"], refetchType: "none" });
     },
   });
 }
@@ -46,7 +48,7 @@ export function useUpdateCompetenceRecord() {
       competenceApi.updateRecord(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["competence", "records"] });
-      qc.invalidateQueries({ queryKey: KEYS.matrix });
+      qc.invalidateQueries({ queryKey: KEYS.matrix, refetchType: "none" });
     },
   });
 }
@@ -57,7 +59,7 @@ export function useDeleteCompetenceRecord() {
     mutationFn: (id: number) => competenceApi.deleteRecord(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["competence", "records"] });
-      qc.invalidateQueries({ queryKey: KEYS.matrix });
+      qc.invalidateQueries({ queryKey: KEYS.matrix, refetchType: "none" });
     },
   });
 }
@@ -68,6 +70,7 @@ export function useCompetenceMatrix() {
   return useQuery({
     queryKey: KEYS.matrix,
     queryFn: () => competenceApi.getMatrix(),
+    staleTime: 2 * 60 * 1000, // treat as fresh for 2 min — matrix is expensive to rebuild
   });
 }
 

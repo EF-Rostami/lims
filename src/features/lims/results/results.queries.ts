@@ -26,7 +26,7 @@ export function useEnterResult() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: ResultEnter }) => resultsApi.enter(id, data),
-    onSuccess: (_, { id }) => qc.invalidateQueries({ queryKey: resultKeys.detail(id) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: resultKeys.all }),
   });
 }
 
@@ -34,7 +34,7 @@ export function useValidateResult() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => resultsApi.validate(id),
-    onSuccess: (_, id) => qc.invalidateQueries({ queryKey: resultKeys.detail(id) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: resultKeys.all }),
   });
 }
 
@@ -42,7 +42,7 @@ export function useApproveResult() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => resultsApi.approve(id),
-    onSuccess: (_, id) => qc.invalidateQueries({ queryKey: resultKeys.detail(id) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: resultKeys.all }),
   });
 }
 
@@ -50,6 +50,6 @@ export function useRejectResult() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: ResultReject }) => resultsApi.reject(id, data),
-    onSuccess: (_, { id }) => qc.invalidateQueries({ queryKey: resultKeys.detail(id) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: resultKeys.all }),
   });
 }

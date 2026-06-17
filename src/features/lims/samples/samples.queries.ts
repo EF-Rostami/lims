@@ -5,6 +5,7 @@ import {
   type SampleUpdate,
   type SampleReceive,
   type SampleReject,
+  type SampleDispose,
   type ListSamplesParams,
   type SampleTypeCreate,
   type SampleTypeUpdate,
@@ -119,6 +120,14 @@ export function useRejectSample() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: SampleReject }) => samplesApi.reject(id, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: sampleKeys.all }),
+  });
+}
+
+export function useDisposeSample() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: SampleDispose }) => samplesApi.dispose(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: sampleKeys.all }),
   });
 }

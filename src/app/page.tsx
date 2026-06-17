@@ -2,7 +2,7 @@ import Link from "next/link";
 import {
   FlaskConical, ShieldCheck, ClipboardList, Users, BarChart3,
   Wrench, FileText, ArrowRight, CheckCircle, Star, Microscope,
-  Building2, Zap, Lock, Globe, ChevronRight,
+  Building2, Zap, Lock, Globe, ChevronRight, Play,
 } from "lucide-react";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -67,7 +67,7 @@ const steps = [
 const plans = [
   {
     name: "Starter",
-    price: "$149",
+    price: "$---",
     period: "/mo",
     desc: "For small independent labs getting started with digital QMS.",
     features: ["Up to 10 users", "Sample & order tracking", "Basic document control", "Email support"],
@@ -76,7 +76,7 @@ const plans = [
   },
   {
     name: "Professional",
-    price: "$349",
+    price: "$---",
     period: "/mo",
     desc: "For accredited labs that need full ISO 17025 workflow coverage.",
     features: [
@@ -161,6 +161,12 @@ function Nav() {
             Sign in
           </Link>
           <Link
+            href="/demo"
+            className="hidden sm:flex items-center gap-1.5 text-sm text-blue-600 border border-blue-200 px-4 py-2 rounded-lg hover:bg-blue-50 font-medium transition-colors"
+          >
+            <Play className="w-3 h-3 fill-blue-600" /> Live demo
+          </Link>
+          <Link
             href="/register"
             className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium transition-colors"
           >
@@ -185,7 +191,7 @@ function Hero() {
         }}
       />
       {/* glow */}
-      <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-blue-100 rounded-full blur-3xl opacity-40" />
+      <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-175 h-100 bg-blue-100 rounded-full blur-3xl opacity-40" />
 
       <div className="relative max-w-7xl mx-auto px-6 text-center">
         <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6 border border-blue-100">
@@ -211,12 +217,12 @@ function Hero() {
           >
             Start free 14-day trial <ArrowRight className="w-4 h-4" />
           </Link>
-          <a
-            href="#how-it-works"
+          <Link
+            href="/demo"
             className="flex items-center gap-2 text-gray-700 px-7 py-3.5 rounded-xl font-semibold hover:bg-gray-100 transition-colors border border-gray-200"
           >
-            See how it works <ChevronRight className="w-4 h-4" />
-          </a>
+            <Play className="w-4 h-4 text-blue-600 fill-blue-600" /> Try live demo
+          </Link>
         </div>
 
         <p className="mt-4 text-xs text-gray-400">No credit card required · Setup in under 2 hours · Cancel anytime</p>
@@ -314,7 +320,7 @@ function TrustBar() {
       <div className="max-w-7xl mx-auto px-6 flex flex-wrap items-center justify-center gap-6 md:gap-10">
         {trustBadges.map((b) => (
           <div key={b} className="flex items-center gap-2 text-sm text-gray-500 font-medium">
-            <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+            <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
             {b}
           </div>
         ))}
@@ -350,6 +356,89 @@ function Features() {
   );
 }
 
+function LiveDemoSection() {
+  const highlights = [
+    { label: "Departments", value: "2", sub: "Chemistry + Microbiology" },
+    { label: "Staff members", value: "17", sub: "With competence records" },
+    { label: "Test methods", value: "17", sub: "All validated" },
+    { label: "Active orders", value: "5", sub: "With real results" },
+    { label: "QC runs", value: "11", sub: "Westgard-evaluated" },
+    { label: "IA findings", value: "5", sub: "With CAPA actions" },
+  ];
+
+  return (
+    <section className="py-24 bg-linear-to-br from-blue-600 to-indigo-700 relative overflow-hidden">
+      {/* subtle grid */}
+      <div
+        className="absolute inset-0 opacity-10"
+        style={{
+          backgroundImage:
+            "linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)",
+          backgroundSize: "48px 48px",
+        }}
+      />
+      <div className="relative max-w-7xl mx-auto px-6">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
+            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+            Live demo — real data, read-only access
+          </div>
+          <h2 className="text-4xl font-bold text-white mb-4">
+            See a fully-operational dairy lab in action
+          </h2>
+          <p className="text-blue-200 text-lg max-w-2xl mx-auto">
+            Our live demo is a pre-populated dairy testing laboratory running BLIMS right now.
+            Explore every module — no sign-up, no configuration needed.
+          </p>
+        </div>
+
+        {/* Stats grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+          {highlights.map((h) => (
+            <div key={h.label} className="bg-white/10 border border-white/20 rounded-2xl p-4 text-center backdrop-blur">
+              <p className="text-3xl font-extrabold text-white mb-0.5">{h.value}</p>
+              <p className="text-xs font-semibold text-blue-200 mb-1">{h.label}</p>
+              <p className="text-xs text-blue-300">{h.sub}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Modules list */}
+        <div className="bg-white/10 border border-white/20 rounded-2xl p-6 mb-10 backdrop-blur">
+          <p className="text-white font-semibold text-sm mb-4">What you can explore in the demo:</p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {[
+              "Dashboard & KPIs", "Sample orders & results", "QMS documents & SOPs",
+              "QC materials & Westgard charts", "Internal audits & findings", "CAPA action items",
+              "Instrument records & calibration", "Environmental monitoring", "Inventory management",
+              "Reference materials", "Staff competence records", "Report templates & CoA",
+              "Measurement uncertainty budgets", "Method validation studies", "Customer complaints",
+            ].map((item) => (
+              <div key={item} className="flex items-center gap-2 text-sm text-blue-100">
+                <CheckCircle className="w-4 h-4 text-green-400 shrink-0" />
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="text-center">
+          <Link
+            href="/demo"
+            className="inline-flex items-center gap-2.5 bg-white text-blue-600 px-8 py-4 rounded-xl font-bold text-base hover:bg-blue-50 transition-colors shadow-2xl"
+          >
+            <Play className="w-5 h-5 fill-blue-600" />
+            Launch live demo — no sign-up needed
+          </Link>
+          <p className="mt-3 text-blue-300 text-xs">
+            Read-only access · Pre-populated dairy testing lab · Instant login
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function HowItWorks() {
   return (
     <section id="how-it-works" className="py-24 bg-gray-50">
@@ -363,7 +452,7 @@ function HowItWorks() {
         </div>
         <div className="grid md:grid-cols-3 gap-8 relative">
           {/* connector line */}
-          <div className="hidden md:block absolute top-10 left-1/6 right-1/6 h-0.5 bg-gradient-to-r from-blue-100 via-blue-300 to-blue-100" />
+          <div className="hidden md:block absolute top-10 left-1/6 right-1/6 h-0.5 bg-linear-to-r from-blue-100 via-blue-300 to-blue-100" />
           {steps.map((s) => (
             <div key={s.n} className="relative bg-white rounded-2xl p-8 border border-gray-100 shadow-sm text-center">
               <div className="w-12 h-12 rounded-full bg-blue-600 text-white font-bold text-lg flex items-center justify-center mx-auto mb-5 shadow-lg shadow-blue-200">
@@ -395,9 +484,9 @@ function Testimonials() {
                   <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
                 ))}
               </div>
-              <p className="text-sm text-gray-700 leading-relaxed flex-1">"{t.quote}"</p>
+              <p className="text-sm text-gray-700 leading-relaxed flex-1">&quot;{t.quote}&quot;</p>
               <div className="flex items-center gap-3 pt-2 border-t border-gray-100">
-                <div className={`w-9 h-9 rounded-full ${t.color} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
+                <div className={`w-9 h-9 rounded-full ${t.color} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
                   {t.initials}
                 </div>
                 <div>
@@ -448,7 +537,7 @@ function Pricing() {
               <ul className="space-y-3 mb-8">
                 {p.features.map((f) => (
                   <li key={f} className="flex items-start gap-2.5">
-                    <CheckCircle className={`w-4 h-4 flex-shrink-0 mt-0.5 ${p.highlight ? "text-blue-200" : "text-green-500"}`} />
+                    <CheckCircle className={`w-4 h-4 shrink-0 mt-0.5 ${p.highlight ? "text-blue-200" : "text-green-500"}`} />
                     <span className={`text-sm ${p.highlight ? "text-blue-100" : "text-gray-600"}`}>{f}</span>
                   </li>
                 ))}
@@ -488,12 +577,12 @@ function CtaBanner() {
           >
             Start your free trial
           </Link>
-          <a
-            href="mailto:sales@blims.io"
-            className="text-white border border-blue-400 px-8 py-3.5 rounded-xl font-semibold hover:border-white transition-colors"
+          <Link
+            href="/demo"
+            className="flex items-center gap-2 text-white border border-blue-400 px-8 py-3.5 rounded-xl font-semibold hover:border-white transition-colors"
           >
-            Talk to sales
-          </a>
+            <Play className="w-4 h-4 fill-white" /> Try live demo
+          </Link>
         </div>
       </div>
     </section>
@@ -563,6 +652,7 @@ export default function MarketingPage() {
       <Hero />
       <TrustBar />
       <Features />
+      <LiveDemoSection />
       <HowItWorks />
       <Testimonials />
       <Pricing />

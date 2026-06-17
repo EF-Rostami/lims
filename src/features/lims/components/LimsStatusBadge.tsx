@@ -48,12 +48,13 @@ const presets: Record<string, string> = {
 };
 
 interface LimsStatusBadgeProps {
-  status: string;
+  status: string | null | undefined;
   className?: string;
 }
 
 export function LimsStatusBadge({ status, className }: LimsStatusBadgeProps) {
-  const colors = presets[status] ?? "bg-slate-100 text-slate-600";
+  const safeStatus = status ?? "";
+  const colors = presets[safeStatus] ?? "bg-slate-100 text-slate-600";
   return (
     <span
       className={cn(
@@ -62,7 +63,7 @@ export function LimsStatusBadge({ status, className }: LimsStatusBadgeProps) {
         className
       )}
     >
-      {status.replace(/_/g, " ")}
+      {safeStatus.replace(/_/g, " ")}
     </span>
   );
 }
