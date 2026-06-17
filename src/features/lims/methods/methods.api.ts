@@ -1,7 +1,9 @@
 import { limsApi, extractPage } from "@/lib/lims-api";
 import type { components } from "@/generated/lims/api";
 
-export type TestMethodRead = components["schemas"]["TestMethodRead"];
+export type TestMethodRead = components["schemas"]["TestMethodRead"] & {
+  lifecycle_status?: string | null;
+};
 export type TestMethodCreate = components["schemas"]["TestMethodCreate"];
 export type TestMethodUpdate = components["schemas"]["TestMethodUpdate"];
 export type MethodStatus = components["schemas"]["MethodStatus"];

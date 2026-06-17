@@ -77,6 +77,73 @@ function StatusBadge({ status }: { status: CompetenceStatus }) {
 
 type Tab = "matrix" | "records" | "training" | "expiring" | "check";
 
+// ── Readiness panel ───────────────────────────────────────────────────────────
+
+function ReadinessPanel() {
+  const { data: records } = useCompetenceRecords();
+
+  if (!records || records.length === 0) return null;
+
+  // Group by employee and flag as cleared if they hold ≥1 active+competent/assessor record
+  const byEmployee = new Map<number, { name: string; number: string | null | undefined; cleared: boolean }>();
+  for (const r of records) {
+    const existing = byEmployee.get(r.employee_id);
+    const isCleared = r.status === "active" && (r.level === "competent" || r.level === "assessor");
+    if (!existing) {
+      byEmployee.set(r.employee_id, {
+        name: r.employee_name ?? `#${r.employee_id}`,
+        number: r.employee_number,
+        cleared: isCleared,
+      });
+    } else if (isCleared) {
+      existing.cleared = true;
+    }
+  }
+
+  const analysts = Array.from(byEmployee.values()).sort((a, b) => a.name.localeCompare(b.name));
+  const cleared = analysts.filter(a => a.cleared).length;
+  const total = analysts.length;
+  const allClear = cleared === total;
+
+  return (
+    <div className={`rounded-xl border p-4 ${allClear ? "bg-green-50 border-green-200" : "bg-amber-50 border-amber-200"}`}>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-3">
+          {allClear ? (
+            <CheckCircle2 size={18} className="text-green-600 shrink-0" />
+          ) : (
+            <AlertTriangle size={18} className="text-amber-600 shrink-0" />
+          )}
+          <div>
+            <p className={`text-sm font-semibold ${allClear ? "text-green-800" : "text-amber-800"}`}>
+              Go-Live Readiness — Personnel
+            </p>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {cleared} of {total} analyst{total !== 1 ? "s" : ""} hold an active competent-level authorization
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {analysts.map(a => (
+            <span
+              key={a.number ?? a.name}
+              title={a.number ?? undefined}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${
+                a.cleared
+                  ? "bg-green-100 text-green-800 border-green-200"
+                  : "bg-red-100 text-red-700 border-red-200"
+              }`}
+            >
+              {a.cleared ? <Check size={10} /> : <X size={10} />}
+              {a.name}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Matrix tab ────────────────────────────────────────────────────────────────
 
 function MatrixCell({ cell }: { cell: MatrixCell | undefined }) {
@@ -831,6 +898,8 @@ export default function CompetencePage() {
           ISO 17025 §6.2 — Authorization matrix, training records, competency expiry, assignment restrictions
         </p>
       </div>
+
+      <ReadinessPanel />
 
       <div className="border-b flex gap-1 flex-wrap">
         {TABS.map(t => {

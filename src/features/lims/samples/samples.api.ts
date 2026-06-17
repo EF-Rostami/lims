@@ -1,13 +1,33 @@
 import { limsApi, extractPage } from "@/lib/lims-api";
 import type { components } from "@/generated/lims/api";
 
+export type SampleCondition =
+  | "GOOD" | "ACCEPTABLE" | "DAMAGED" | "COMPROMISED"
+  | "HAEMOLYSED" | "LIPAEMIC" | "ICTERIC";
+
 export type SampleRead = components["schemas"]["SampleRead"] & {
   storage_location_id?: number | null;
   position_label?: string | null;
+  received_condition?: SampleCondition | null;
+  receipt_discrepancies?: string | null;
+  disposed_at?: string | null;
+  disposal_reason?: string | null;
+  disposed_by_user_id?: number | null;
 };
 export type SampleCreate = components["schemas"]["SampleCreate"];
 export type SampleUpdate = components["schemas"]["SampleUpdate"];
-export type SampleReceive = components["schemas"]["SampleReceive"];
+
+export interface SampleReceive {
+  received_at?: string | null;
+  received_condition?: SampleCondition | null;
+  receipt_discrepancies?: string | null;
+  notes?: string | null;
+}
+
+export interface SampleDispose {
+  disposal_reason: string;
+}
+
 export type SampleReject = components["schemas"]["SampleReject"];
 export type SampleStatus = components["schemas"]["SampleStatus"];
 export type SampleTypeRead = components["schemas"]["SampleTypeRead"] & {
@@ -122,6 +142,11 @@ export const samplesApi = {
 
   reject: async (id: number, data: SampleReject): Promise<SampleRead> => {
     const res = await limsApi.post<SampleRead>(`/samples/${id}/reject`, data);
+    return res.data;
+  },
+
+  dispose: async (id: number, data: SampleDispose): Promise<SampleRead> => {
+    const res = await limsApi.post<SampleRead>(`/samples/${id}/dispose`, data);
     return res.data;
   },
 

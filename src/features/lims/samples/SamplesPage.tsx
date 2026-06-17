@@ -20,15 +20,46 @@ import { LimsTable } from "@/features/lims/components/LimsTable";
 import { LimsStatusBadge } from "@/features/lims/components/LimsStatusBadge";
 import {
   useSamples, useSampleTypes, useCreateSample, useReceiveSample, useRejectSample,
-  useAssignStorage, useRemoveStorage,
+  useDisposeSample, useAssignStorage, useRemoveStorage,
   useStorageLocations, useSamplesAtLocation,
   useCreateStorageLocation, useUpdateStorageLocation, useDeleteStorageLocation,
   useCreateSampleType, useUpdateSampleType, useDeleteSampleType,
+  useUpdateSample,
 } from "./samples.queries";
 import type {
-  SampleRead, SampleCreate, StorageLocation, StorageLocationCreate, StorageLocationUpdate,
+  SampleRead, SampleCreate, SampleUpdate, SampleCondition,
+  StorageLocation, StorageLocationCreate, StorageLocationUpdate,
   LocationType, SampleTypeRead, SampleTypeCreate, SampleTypeUpdate,
 } from "./samples.api";
+
+const CONDITION_OPTIONS: { value: SampleCondition; label: string }[] = [
+  { value: "GOOD", label: "Good" },
+  { value: "ACCEPTABLE", label: "Acceptable" },
+  { value: "DAMAGED", label: "Damaged" },
+  { value: "COMPROMISED", label: "Compromised" },
+  { value: "HAEMOLYSED", label: "Haemolysed" },
+  { value: "LIPAEMIC", label: "Lipaemic" },
+  { value: "ICTERIC", label: "Icteric" },
+];
+
+function ConditionBadge({ condition }: { condition: SampleCondition | null | undefined }) {
+  if (!condition) return null;
+  const colors: Record<SampleCondition, string> = {
+    GOOD: "bg-green-100 text-green-700",
+    ACCEPTABLE: "bg-blue-100 text-blue-700",
+    DAMAGED: "bg-amber-100 text-amber-700",
+    COMPROMISED: "bg-orange-100 text-orange-700",
+    HAEMOLYSED: "bg-red-100 text-red-700",
+    LIPAEMIC: "bg-purple-100 text-purple-700",
+    ICTERIC: "bg-yellow-100 text-yellow-700",
+  };
+  const label = CONDITION_OPTIONS.find((o) => o.value === condition)?.label ?? condition;
+  return (
+    <span className={`inline-block text-xs px-1.5 py-0.5 rounded font-medium ${colors[condition]}`}>
+      {label}
+    </span>
+  );
+}
 
 // ── Location type meta ────────────────────────────────────────────────────────
 
@@ -499,268 +530,6 @@ function LocationDetailPanel({
   );
 }
 
-// ── Samples tab ───────────────────────────────────────────────────────────────
-
-const emptySampleForm = (): SampleCreate => ({
-  barcode: "",
-  sample_type_id: 0,
-  client_id: null,
-  external_ref: null,
-  collected_at: null,
-  notes: null,
-  collected_by: null,
-});
-
-function SamplesTab() {
-  const [createOpen, setCreateOpen] = useState(false);
-  const [rejectTarget, setRejectTarget] = useState<SampleRead | null>(null);
-  const [rejectReason, setRejectReason] = useState("");
-  const [assignTarget, setAssignTarget] = useState<SampleRead | null>(null);
-  const [form, setForm] = useState<SampleCreate>(emptySampleForm());
-
-  const { data: samples = [], isLoading } = useSamples();
-  const { data: types = [] } = useSampleTypes();
-  const { data: locations = [] } = useStorageLocations();
-  const create = useCreateSample();
-  const receive = useReceiveSample();
-  const reject = useRejectSample();
-  const assignStorage = useAssignStorage();
-  const removeStorage = useRemoveStorage();
-
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await create.mutateAsync(form);
-    setCreateOpen(false);
-    setForm(emptySampleForm());
-  };
-
-  const handleReceive = async (s: SampleRead) => {
-    await receive.mutateAsync({ id: s.id, data: { received_at: new Date().toISOString() } });
-  };
-
-  const handleReject = async () => {
-    if (!rejectTarget) return;
-    await reject.mutateAsync({ id: rejectTarget.id, data: { rejection_reason: rejectReason } });
-    setRejectTarget(null);
-    setRejectReason("");
-  };
-
-  const handleAssignStorage = async (locationId: number, posLabel: string | null) => {
-    if (!assignTarget) return;
-    await assignStorage.mutateAsync({
-      id: assignTarget.id,
-      data: { location_id: locationId, position_label: posLabel },
-    });
-    setAssignTarget(null);
-  };
-
-  const handleRemoveStorage = async (s: SampleRead) => {
-    await removeStorage.mutateAsync(s.id);
-  };
-
-  const locationById = new Map(locations.map((l) => [l.id, l]));
-
-  return (
-    <>
-      <LimsTable
-        data={samples}
-        isLoading={isLoading}
-        emptyMessage="No samples registered yet."
-        columns={[
-          {
-            header: "Barcode",
-            render: (s) => <span className="font-mono text-sm font-medium">{s.barcode}</span>,
-          },
-          {
-            header: "Type",
-            render: (s) => (
-              <span className="text-slate-700">
-                {types.find((t) => t.id === s.sample_type_id)?.name ?? s.sample_type_id}
-              </span>
-            ),
-          },
-          {
-            header: "External Ref",
-            render: (s) => <span className="text-slate-500">{s.external_ref ?? "—"}</span>,
-          },
-          {
-            header: "Storage",
-            render: (s) => {
-              const loc = s.storage_location_id ? locationById.get(s.storage_location_id) : null;
-              if (!loc) return <span className="text-slate-400 text-xs">—</span>;
-              return (
-                <span className="flex items-center gap-1 text-xs text-slate-600">
-                  <MapPin className="h-3 w-3 text-primary shrink-0" />
-                  <span className="truncate max-w-30">{loc.name}</span>
-                  {s.position_label && (
-                    <span className="font-mono text-slate-400">· {s.position_label}</span>
-                  )}
-                </span>
-              );
-            },
-          },
-          {
-            header: "Status",
-            render: (s) => <LimsStatusBadge status={s.status} />,
-          },
-          {
-            header: "",
-            className: "w-10",
-            render: (s) => (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-7 w-7">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {s.status === "PENDING" && (
-                    <DropdownMenuItem onClick={() => handleReceive(s)}>
-                      <CheckCircle className="h-3.5 w-3.5 mr-2 text-green-600" /> Receive
-                    </DropdownMenuItem>
-                  )}
-                  {(s.status === "PENDING" || s.status === "RECEIVED") && (
-                    <DropdownMenuItem
-                      className="text-red-600"
-                      onClick={() => { setRejectTarget(s); setRejectReason(""); }}
-                    >
-                      <XCircle className="h-3.5 w-3.5 mr-2" /> Reject
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setAssignTarget(s)}>
-                    <MapPin className="h-3.5 w-3.5 mr-2 text-primary" />
-                    {s.storage_location_id ? "Move Storage" : "Assign Storage"}
-                  </DropdownMenuItem>
-                  {s.storage_location_id && (
-                    <DropdownMenuItem onClick={() => handleRemoveStorage(s)}>
-                      <Warehouse className="h-3.5 w-3.5 mr-2 text-slate-500" /> Remove from Storage
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem disabled className="text-slate-400">
-                    <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ),
-          },
-        ]}
-      />
-
-      {/* Create dialog */}
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="max-w-md" aria-describedby={undefined}>
-          <DialogHeader><DialogTitle>Register Sample</DialogTitle></DialogHeader>
-          <form onSubmit={handleCreate} className="space-y-4 mt-2">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label>Barcode *</Label>
-                <Input
-                  required
-                  value={form.barcode}
-                  onChange={(e) => setForm((f) => ({ ...f, barcode: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-1">
-                <Label>External Ref</Label>
-                <Input
-                  value={form.external_ref ?? ""}
-                  onChange={(e) => setForm((f) => ({ ...f, external_ref: e.target.value || null }))}
-                />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <Label>Sample Type *</Label>
-              <Select
-                value={form.sample_type_id ? String(form.sample_type_id) : ""}
-                onValueChange={(v) => setForm((f) => ({ ...f, sample_type_id: Number(v) }))}
-              >
-                <SelectTrigger><SelectValue placeholder="Select type…" /></SelectTrigger>
-                <SelectContent>
-                  {types.map((t) => (
-                    <SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label>Collected At</Label>
-                <Input
-                  type="datetime-local"
-                  value={form.collected_at?.slice(0, 16) ?? ""}
-                  onChange={(e) => setForm((f) => ({ ...f, collected_at: e.target.value || null }))}
-                />
-              </div>
-              <div className="space-y-1">
-                <Label>Collected By</Label>
-                <Input
-                  value={form.collected_by ?? ""}
-                  onChange={(e) => setForm((f) => ({ ...f, collected_by: e.target.value || null }))}
-                />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <Label>Notes</Label>
-              <Textarea
-                rows={2}
-                value={form.notes ?? ""}
-                onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value || null }))}
-              />
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={create.isPending}>Register</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Reject dialog */}
-      <Dialog open={!!rejectTarget} onOpenChange={() => setRejectTarget(null)}>
-        <DialogContent className="max-w-sm" aria-describedby={undefined}>
-          <DialogHeader><DialogTitle>Reject Sample</DialogTitle></DialogHeader>
-          <div className="space-y-3 mt-2">
-            <p className="text-sm text-slate-600">
-              Rejecting <strong>{rejectTarget?.barcode}</strong>. Please provide a reason.
-            </p>
-            <div className="space-y-1">
-              <Label>Reason *</Label>
-              <Textarea
-                rows={2}
-                required
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRejectTarget(null)}>Cancel</Button>
-            <Button
-              variant="destructive"
-              disabled={!rejectReason || reject.isPending}
-              onClick={handleReject}
-            >
-              Reject Sample
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Assign storage dialog */}
-      <AssignStorageDialog
-        open={!!assignTarget}
-        onOpenChange={(v) => { if (!v) setAssignTarget(null); }}
-        sample={assignTarget}
-        locations={locations}
-        onSave={handleAssignStorage}
-        saving={assignStorage.isPending}
-      />
-    </>
-  );
-}
-
 // ── Storage Locations tab ─────────────────────────────────────────────────────
 
 function StorageLocationsTab() {
@@ -1126,6 +895,16 @@ function SampleTypesTab() {
   );
 }
 
+const emptySampleForm = (): SampleCreate => ({
+  barcode: "",
+  sample_type_id: 0,
+  client_id: null,
+  external_ref: null,
+  collected_at: null,
+  notes: null,
+  collected_by: null,
+});
+
 // ── Page root ─────────────────────────────────────────────────────────────────
 
 export function SamplesPage() {
@@ -1169,9 +948,16 @@ export function SamplesPage() {
 // Wrap SamplesTab so the header action button can open the create dialog
 function _SamplesTabWithAction() {
   const [createOpen, setCreateOpen] = useState(false);
+  const [receiveTarget, setReceiveTarget] = useState<SampleRead | null>(null);
+  const [receiveCondition, setReceiveCondition] = useState<SampleCondition | "">("");
+  const [receiveDiscrepancies, setReceiveDiscrepancies] = useState("");
   const [rejectTarget, setRejectTarget] = useState<SampleRead | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [disposeTarget, setDisposeTarget] = useState<SampleRead | null>(null);
+  const [disposeReason, setDisposeReason] = useState("");
   const [assignTarget, setAssignTarget] = useState<SampleRead | null>(null);
+  const [editTarget, setEditTarget] = useState<SampleRead | null>(null);
+  const [editForm, setEditForm] = useState<SampleUpdate>({});
   const [form, setForm] = useState<SampleCreate>(emptySampleForm());
 
   const { data: samples = [], isLoading } = useSamples();
@@ -1180,8 +966,10 @@ function _SamplesTabWithAction() {
   const create = useCreateSample();
   const receive = useReceiveSample();
   const reject = useRejectSample();
+  const dispose = useDisposeSample();
   const assignStorage = useAssignStorage();
   const removeStorage = useRemoveStorage();
+  const updateSample = useUpdateSample();
 
   // Listen for the custom event from the parent action button
   useState(() => {
@@ -1197,8 +985,19 @@ function _SamplesTabWithAction() {
     setForm(emptySampleForm());
   };
 
-  const handleReceive = async (s: SampleRead) => {
-    await receive.mutateAsync({ id: s.id, data: { received_at: new Date().toISOString() } });
+  const handleReceive = async () => {
+    if (!receiveTarget) return;
+    await receive.mutateAsync({
+      id: receiveTarget.id,
+      data: {
+        received_at: new Date().toISOString(),
+        received_condition: receiveCondition || null,
+        receipt_discrepancies: receiveDiscrepancies || null,
+      },
+    });
+    setReceiveTarget(null);
+    setReceiveCondition("");
+    setReceiveDiscrepancies("");
   };
 
   const handleReject = async () => {
@@ -1206,6 +1005,13 @@ function _SamplesTabWithAction() {
     await reject.mutateAsync({ id: rejectTarget.id, data: { rejection_reason: rejectReason } });
     setRejectTarget(null);
     setRejectReason("");
+  };
+
+  const handleDispose = async () => {
+    if (!disposeTarget) return;
+    await dispose.mutateAsync({ id: disposeTarget.id, data: { disposal_reason: disposeReason } });
+    setDisposeTarget(null);
+    setDisposeReason("");
   };
 
   const handleAssignStorage = async (locationId: number, posLabel: string | null) => {
@@ -1219,6 +1025,23 @@ function _SamplesTabWithAction() {
 
   const handleRemoveStorage = async (s: SampleRead) => {
     await removeStorage.mutateAsync(s.id);
+  };
+
+  const openEdit = (s: SampleRead) => {
+    setEditTarget(s);
+    setEditForm({
+      external_ref: s.external_ref ?? null,
+      collected_at: s.collected_at ?? null,
+      notes: s.notes ?? null,
+      collected_by: s.collected_by ?? null,
+    });
+  };
+
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editTarget) return;
+    await updateSample.mutateAsync({ id: editTarget.id, data: editForm });
+    setEditTarget(null);
   };
 
   const locationById = new Map(locations.map((l) => [l.id, l]));
@@ -1243,8 +1066,8 @@ function _SamplesTabWithAction() {
             ),
           },
           {
-            header: "External Ref",
-            render: (s) => <span className="text-slate-500">{s.external_ref ?? "—"}</span>,
+            header: "Condition",
+            render: (s) => <ConditionBadge condition={s.received_condition} />,
           },
           {
             header: "Storage",
@@ -1286,7 +1109,7 @@ function _SamplesTabWithAction() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   {s.status === "PENDING" && (
-                    <DropdownMenuItem onClick={() => handleReceive(s)}>
+                    <DropdownMenuItem onClick={() => { setReceiveTarget(s); setReceiveCondition(""); setReceiveDiscrepancies(""); }}>
                       <CheckCircle className="h-3.5 w-3.5 mr-2 text-green-600" /> Receive
                     </DropdownMenuItem>
                   )}
@@ -1296,6 +1119,14 @@ function _SamplesTabWithAction() {
                       onClick={() => { setRejectTarget(s); setRejectReason(""); }}
                     >
                       <XCircle className="h-3.5 w-3.5 mr-2" /> Reject
+                    </DropdownMenuItem>
+                  )}
+                  {(s.status === "RECEIVED" || s.status === "REJECTED") && (
+                    <DropdownMenuItem
+                      className="text-red-700"
+                      onClick={() => { setDisposeTarget(s); setDisposeReason(""); }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5 mr-2" /> Dispose
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
@@ -1309,7 +1140,7 @@ function _SamplesTabWithAction() {
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem disabled className="text-slate-400">
+                  <DropdownMenuItem onClick={() => openEdit(s)}>
                     <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -1388,6 +1219,47 @@ function _SamplesTabWithAction() {
         </DialogContent>
       </Dialog>
 
+      {/* Receive dialog */}
+      <Dialog open={!!receiveTarget} onOpenChange={() => setReceiveTarget(null)}>
+        <DialogContent className="max-w-sm" aria-describedby={undefined}>
+          <DialogHeader><DialogTitle>Receive Sample</DialogTitle></DialogHeader>
+          <div className="space-y-3 mt-2">
+            <p className="text-sm text-slate-600">
+              Receiving <strong>{receiveTarget?.barcode}</strong>.
+            </p>
+            <div className="space-y-1">
+              <Label>Condition at Receipt</Label>
+              <Select
+                value={receiveCondition}
+                onValueChange={(v) => setReceiveCondition(v as SampleCondition)}
+              >
+                <SelectTrigger><SelectValue placeholder="Select condition…" /></SelectTrigger>
+                <SelectContent>
+                  {CONDITION_OPTIONS.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label>Discrepancies / Notes</Label>
+              <Textarea
+                rows={2}
+                placeholder="Any issues observed on arrival…"
+                value={receiveDiscrepancies}
+                onChange={(e) => setReceiveDiscrepancies(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReceiveTarget(null)}>Cancel</Button>
+            <Button disabled={receive.isPending} onClick={handleReceive}>
+              <CheckCircle className="h-3.5 w-3.5 mr-1.5" /> Confirm Receipt
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Reject dialog */}
       <Dialog open={!!rejectTarget} onOpenChange={() => setRejectTarget(null)}>
         <DialogContent className="max-w-sm" aria-describedby={undefined}>
@@ -1416,6 +1288,83 @@ function _SamplesTabWithAction() {
               Reject Sample
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dispose dialog */}
+      <Dialog open={!!disposeTarget} onOpenChange={() => setDisposeTarget(null)}>
+        <DialogContent className="max-w-sm" aria-describedby={undefined}>
+          <DialogHeader><DialogTitle>Dispose Sample</DialogTitle></DialogHeader>
+          <div className="space-y-3 mt-2">
+            <p className="text-sm text-slate-600">
+              Disposing <strong>{disposeTarget?.barcode}</strong>. This action is permanent.
+            </p>
+            <div className="space-y-1">
+              <Label>Disposal Reason *</Label>
+              <Textarea
+                rows={2}
+                required
+                placeholder="e.g. Stability period exceeded, biohazard disposal…"
+                value={disposeReason}
+                onChange={(e) => setDisposeReason(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDisposeTarget(null)}>Cancel</Button>
+            <Button
+              variant="destructive"
+              disabled={!disposeReason || dispose.isPending}
+              onClick={handleDispose}
+            >
+              Confirm Disposal
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit dialog */}
+      <Dialog open={!!editTarget} onOpenChange={() => setEditTarget(null)}>
+        <DialogContent className="max-w-md" aria-describedby={undefined}>
+          <DialogHeader><DialogTitle>Edit Sample</DialogTitle></DialogHeader>
+          <form onSubmit={handleEdit} className="space-y-4 mt-2">
+            <div className="space-y-1">
+              <Label>External Ref</Label>
+              <Input
+                value={editForm.external_ref ?? ""}
+                onChange={(e) => setEditForm((f) => ({ ...f, external_ref: e.target.value || null }))}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label>Collected At</Label>
+                <Input
+                  type="datetime-local"
+                  value={editForm.collected_at?.slice(0, 16) ?? ""}
+                  onChange={(e) => setEditForm((f) => ({ ...f, collected_at: e.target.value || null }))}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Collected By</Label>
+                <Input
+                  value={editForm.collected_by ?? ""}
+                  onChange={(e) => setEditForm((f) => ({ ...f, collected_by: e.target.value || null }))}
+                />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label>Notes</Label>
+              <Textarea
+                rows={2}
+                value={editForm.notes ?? ""}
+                onChange={(e) => setEditForm((f) => ({ ...f, notes: e.target.value || null }))}
+              />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setEditTarget(null)}>Cancel</Button>
+              <Button type="submit" disabled={updateSample.isPending}>Save Changes</Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
 

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, XCircle, AlertTriangle, Plus, Pencil, Trash2, ShieldCheck, FlaskConical } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CheckCircle, XCircle, AlertTriangle, Plus, Pencil, Trash2, ShieldCheck, FlaskConical, ArrowRight } from "lucide-react";
+import { lifecycleApi } from "@/features/lims/consultancy/lifecycle.api";
 import { useResults } from "@/features/lims/results/results.queries";
 import type { ResultRead } from "@/features/lims/results/results.api";
 import { Button } from "@/components/ui/button";
@@ -130,6 +132,15 @@ function InstrumentListPanel({
 
 // ── Details Tab ───────────────────────────────────────────────────────────────
 
+const LC_INSTRUMENT_NEXT: Record<string, string> = {
+  "__null__": "UNVERIFIED",
+  "UNVERIFIED": "CALIBRATION_PENDING",
+  "CALIBRATION_PENDING": "CALIBRATED",
+  "CALIBRATED": "APPROVED",
+  "APPROVED": "OUT_OF_SERVICE",
+  "OUT_OF_SERVICE": "CALIBRATION_PENDING",
+};
+
 function DetailsTab({ instrument, onEdit, onDelete }: { instrument: InstrumentRead; onEdit: () => void; onDelete: () => void }) {
   const { data: logs = [], isLoading } = useMaintenance(instrument.id);
   const [showMaint, setShowMaint] = useState(false);
@@ -137,6 +148,15 @@ function DetailsTab({ instrument, onEdit, onDelete }: { instrument: InstrumentRe
     action: "", notes: null, performed_at: new Date().toISOString(),
   });
   const logMaint = useLogMaintenance();
+
+  const qc = useQueryClient();
+  const [showLcDialog, setShowLcDialog] = useState(false);
+  const [lcNote, setLcNote] = useState("");
+  const lcNextStatus = LC_INSTRUMENT_NEXT[instrument.lifecycle_status ?? "__null__"];
+  const transitionLc = useMutation({
+    mutationFn: () => lifecycleApi.transitionInstrument(instrument.id, { new_status: lcNextStatus, audit_note: lcNote || null }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["lims", "instruments"] }); setShowLcDialog(false); setLcNote(""); },
+  });
 
   const handleMaint = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,9 +200,17 @@ function DetailsTab({ instrument, onEdit, onDelete }: { instrument: InstrumentRe
         )}
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap items-center">
         <LimsStatusBadge status={instrument.status} />
         <LimsStatusBadge status={instrument.calibration_status} />
+        <span className="px-2 py-0.5 rounded text-xs font-medium bg-violet-100 text-violet-700">
+          LC: {instrument.lifecycle_status ? instrument.lifecycle_status.replace(/_/g, " ") : "Not started"}
+        </span>
+        {lcNextStatus && (
+          <Button size="sm" variant="outline" className="h-6 px-2 text-xs" onClick={() => setShowLcDialog(true)}>
+            <ArrowRight className="h-3 w-3 mr-1" />{lcNextStatus.replace(/_/g, " ")}
+          </Button>
+        )}
       </div>
 
       {instrument.notes && (
@@ -239,6 +267,26 @@ function DetailsTab({ instrument, onEdit, onDelete }: { instrument: InstrumentRe
               <Button type="submit" disabled={logMaint.isPending}>Log</Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showLcDialog} onOpenChange={setShowLcDialog}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>Lifecycle Transition</DialogTitle></DialogHeader>
+          <div className="space-y-3 mt-2">
+            <p className="text-sm text-muted-foreground">
+              Transition <strong>{instrument.name}</strong> to{" "}
+              <span className="font-semibold text-violet-700">{lcNextStatus?.replace(/_/g, " ")}</span>.
+            </p>
+            <div className="space-y-1">
+              <Label>Audit Note <span className="text-muted-foreground">(optional)</span></Label>
+              <Textarea rows={2} value={lcNote} onChange={(e) => setLcNote(e.target.value)} placeholder="Reason for transition…" />
+            </div>
+          </div>
+          <DialogFooter className="mt-3">
+            <Button variant="outline" onClick={() => setShowLcDialog(false)}>Cancel</Button>
+            <Button onClick={() => transitionLc.mutate()} disabled={transitionLc.isPending}>Confirm</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

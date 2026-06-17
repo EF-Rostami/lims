@@ -5,7 +5,7 @@ import {
   BarChart3, AlertTriangle, ScrollText, FolderOpen, PenLine,
   Building2, Briefcase, ShieldCheck, GanttChart, UserCog, FileSpreadsheet,
   Package, Thermometer, Atom, GraduationCap, Beaker, Activity, Sigma, ClipboardCheck,
-  GitBranch, Bell, MessageSquareWarning, FileText,
+  GitBranch, Bell, MessageSquareWarning, FileText, BookOpen, Target,
 } from "lucide-react";
 
 export interface NavItem {
@@ -72,6 +72,22 @@ export const sidebarConfig: NavItem[] = [
     section: "qms",
   },
 
+  // Accreditation (consultancy module — visible to consultant, lead_auditor, admin, quality_manager)
+  {
+    title: "Acc. Projects",
+    href: "/consultant/projects",
+    icon: Target,
+    requiredPermissions: ["consultancy.read"],
+    section: "accreditation",
+  },
+  {
+    title: "Frameworks",
+    href: "/consultant/frameworks",
+    icon: BookOpen,
+    requiredPermissions: ["consultancy.read"],
+    section: "accreditation",
+  },
+
   // LIMS Operations
   { title: "Clients", href: "/lims/clients", icon: Building2, section: "lims" },
   { title: "Samples", href: "/lims/samples", icon: TestTube2, section: "lims" },
@@ -100,6 +116,8 @@ export const sidebarConfig: NavItem[] = [
 
   // Admin
   { title: "Users", href: "/lims/hr/users", icon: Users, requiredRoles: ["admin"], section: "admin" },
+  { title: "Employees", href: "/lims/hr/employees", icon: UserCog, requiredRoles: ["admin", "hr"], section: "admin" },
   { title: "Departments", href: "/lims/hr/departments", icon: Briefcase, requiredRoles: ["admin"], section: "admin" },
   { title: "Positions", href: "/lims/hr/positions", icon: ShieldCheck, requiredRoles: ["admin"], section: "admin" },
+  { title: "Responsibilities", href: "/lims/hr/responsibilities", icon: ClipboardCheck, requiredRoles: ["admin", "quality_manager"], section: "admin" },
 ];

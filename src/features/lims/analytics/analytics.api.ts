@@ -85,6 +85,45 @@ export interface QCData {
   total_runs_30d: number; overall_pass_rate: number;
 }
 
+// ── Compliance ────────────────────────────────────────────────────────────────
+
+export interface PersonnelCompliance {
+  cleared_analysts: number; total_analysts: number;
+  expiring_soon: number; expired_count: number;
+}
+export interface EquipmentCompliance {
+  in_service: number; total: number;
+  calibration_overdue: number; maintenance_overdue: number;
+}
+export interface MethodsCompliance {
+  active_validated: number; active_total: number; inactive_total: number;
+}
+export interface QCCompliance {
+  open_alerts: number; open_rejections: number; pass_rate_30d: number;
+}
+export interface DocumentCompliance {
+  issued: number; draft: number; total: number;
+}
+export interface FindingsCompliance {
+  open_nc: number; overdue_nc: number; open_observations: number;
+}
+export interface CapaCompliance {
+  open_actions: number; overdue_actions: number;
+}
+export interface SamplesCompliance {
+  pending: number; rejected_last_30d: number;
+}
+export interface ComplianceSummary {
+  personnel: PersonnelCompliance;
+  equipment: EquipmentCompliance;
+  methods: MethodsCompliance;
+  qc: QCCompliance;
+  documents: DocumentCompliance;
+  findings: FindingsCompliance;
+  capa: CapaCompliance;
+  samples: SamplesCompliance;
+}
+
 // ── API ───────────────────────────────────────────────────────────────────────
 
 export const analyticsApi = {
@@ -102,6 +141,9 @@ export const analyticsApi = {
 
   getQC: (days = 30) =>
     limsApi.get<QCData>(`/analytics/qc?days=${days}`).then(r => r.data),
+
+  getCompliance: () =>
+    limsApi.get<ComplianceSummary>("/analytics/compliance").then(r => r.data),
 
   exportCSV: async (entity: "samples" | "results" | "tat", dateFrom?: string, dateTo?: string) => {
     const qs = new URLSearchParams({ entity });
