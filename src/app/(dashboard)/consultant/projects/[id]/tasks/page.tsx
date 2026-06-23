@@ -457,7 +457,7 @@ export default function TasksPage({
                   <option value="">Unassigned</option>
                   {users.map((u) => (
                     <option key={u.id} value={u.id}>
-                      {u.full_name || u.email}
+                      {u.email}
                     </option>
                   ))}
                 </select>
@@ -566,7 +566,7 @@ export default function TasksPage({
                 <option value="">Unassigned</option>
                 {users.map((u) => (
                   <option key={u.id} value={u.id}>
-                    {u.full_name || u.email}
+                    {u.email}
                   </option>
                 ))}
               </select>

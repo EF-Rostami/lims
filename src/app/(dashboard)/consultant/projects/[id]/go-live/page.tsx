@@ -196,9 +196,9 @@ export default function GoLivePage({ params }: { params: Promise<{ id: string }>
   }, {});
 
   // Group readiness checks by category
-  const checksByCategory = (report?.checks ?? []).reduce<
-    Record<string, typeof report.checks>
-  >((acc, c) => {
+  type GoLiveCheck = NonNullable<typeof report>["checks"][number];
+  const checksByCategory = (report?.checks ?? []).reduce<Record<string, GoLiveCheck[]>>(
+    (acc, c) => {
     (acc[c.category] ||= []).push(c);
     return acc;
   }, {});

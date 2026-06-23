@@ -27,11 +27,11 @@ export const usersApi = {
     return res.data;
   },
 
-  assignRole: async (userId: number, roleName: RoleType): Promise<void> => {
+  assignRole: async (userId: number, roleName: RoleType | string): Promise<void> => {
     await limsApi.post(`/users/${userId}/roles`, null, { params: { role_name: roleName } });
   },
 
-  removeRole: async (userId: number, roleName: RoleType): Promise<void> => {
+  removeRole: async (userId: number, roleName: RoleType | string): Promise<void> => {
     await limsApi.delete(`/users/${userId}/roles/${roleName}`);
   },
 };

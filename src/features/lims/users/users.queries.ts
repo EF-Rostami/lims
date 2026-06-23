@@ -33,7 +33,7 @@ export function useCreateUser() {
 export function useAssignRole() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ userId, roleName }: { userId: number; roleName: RoleType }) =>
+    mutationFn: ({ userId, roleName }: { userId: number; roleName: RoleType | string }) =>
       usersApi.assignRole(userId, roleName),
     onSuccess: (_, { userId }) => {
       qc.invalidateQueries({ queryKey: userKeys.detail(userId) });
@@ -45,7 +45,7 @@ export function useAssignRole() {
 export function useRemoveRole() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ userId, roleName }: { userId: number; roleName: RoleType }) =>
+    mutationFn: ({ userId, roleName }: { userId: number; roleName: RoleType | string }) =>
       usersApi.removeRole(userId, roleName),
     onSuccess: (_, { userId }) => {
       qc.invalidateQueries({ queryKey: userKeys.detail(userId) });
