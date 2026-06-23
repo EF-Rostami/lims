@@ -4,8 +4,6 @@ import "./globals.css";
 import { Inter, Geist } from "next/font/google";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
-import Script from "next/script";
-
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,23 +12,22 @@ export const metadata = {
   description: "Laboratory Information Management System",
 };
 
+const plausibleScriptUrl = process.env.NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL;
+const plausibleInitSnippet = `window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};plausible.init()`;
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const plausibleScriptUrl = process.env.NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL;
-
   return (
     <html lang="en" className={cn("font-sans", geist.variable)}>
       <head>
         {plausibleScriptUrl && (
           <>
-            <Script src={plausibleScriptUrl} strategy="afterInteractive" />
-            <Script id="plausible-init" strategy="afterInteractive">{`
-              window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-              plausible.init()
-            `}</Script>
+            {/* eslint-disable-next-line @next/next/no-before-interactive-script-outside-document */}
+            <script async src={plausibleScriptUrl} />
+            <script dangerouslySetInnerHTML={{ __html: plausibleInitSnippet }} />
           </>
         )}
       </head>
