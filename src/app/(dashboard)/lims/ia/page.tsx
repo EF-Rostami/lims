@@ -14,6 +14,7 @@ import type {
   IAAuditRead, IAAuditSummary, IAChecklistItemRead, IAFindingRead,
   AuditStatus, ChecklistResponse, FindingType, FindingStatus,
 } from "@/features/lims/ia/ia.api";
+import { useUsers } from "@/features/lims/users/users.queries";
 
 // ── Constants & helpers ───────────────────────────────────────────────────────
 
@@ -232,12 +233,14 @@ function AuditDetailPanel({
   const closeFinding = useCloseIAFinding();
   const linkCapa = useLinkCapaFinding();
   const deleteFinding = useDeleteIAFinding();
+  const { data: users = [] } = useUsers();
 
   const [activePanel, setActivePanel] = useState<"checklist" | "findings">("checklist");
   const [itemForm, setItemForm] = useState({ clause_ref: "", requirement: "", order_index: "0" });
   const [findingForm, setFindingForm] = useState({
     finding_type: "minor_nc" as FindingType,
     title: "", description: "", clause_ref: "", due_date: "",
+    responsible_user_id: "" as string,
   });
   const [reportText, setReportText] = useState("");
   const [showReport, setShowReport] = useState(false);
@@ -279,9 +282,10 @@ function AuditDetailPanel({
         description: findingForm.description,
         clause_ref: findingForm.clause_ref || null,
         due_date: findingForm.due_date || null,
+        responsible_user_id: findingForm.responsible_user_id ? Number(findingForm.responsible_user_id) : null,
       },
     });
-    setFindingForm({ finding_type: "minor_nc", title: "", description: "", clause_ref: "", due_date: "" });
+    setFindingForm({ finding_type: "minor_nc", title: "", description: "", clause_ref: "", due_date: "", responsible_user_id: "" });
   }
 
   return (
@@ -596,6 +600,17 @@ function AuditDetailPanel({
                 className="w-full border border-slate-300 rounded px-2 py-1 text-sm bg-white"
               />
               <div className="flex items-center gap-2">
+                <label className="text-xs text-slate-500">Responsible</label>
+                <select value={findingForm.responsible_user_id}
+                  onChange={e => setFindingForm(f => ({ ...f, responsible_user_id: e.target.value }))}
+                  className="flex-1 border border-slate-300 rounded px-2 py-1 text-sm bg-white">
+                  <option value="">— Unassigned —</option>
+                  {users.map((u: { id: number; email: string }) => (
+                    <option key={u.id} value={u.id}>{u.email}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
                 <label className="text-xs text-slate-500">Due date</label>
                 <input type="date" value={findingForm.due_date}
                   onChange={e => setFindingForm(f => ({ ...f, due_date: e.target.value }))}
@@ -745,6 +760,8 @@ function FindingsTab() {
     status: filterStatus || undefined,
     finding_type: filterType || undefined,
   });
+  const updateFinding = useUpdateIAFinding();
+  const { data: users = [] } = useUsers();
 
   if (isLoading) return <div className="text-slate-400 text-center py-16">Loading…</div>;
 
@@ -788,6 +805,7 @@ function FindingsTab() {
               <th className="px-4 py-2 text-left">Clause</th>
               <th className="px-4 py-2 text-left">Audit</th>
               <th className="px-4 py-2 text-left">Due Date</th>
+              <th className="px-4 py-2 text-left">Responsible</th>
               <th className="px-4 py-2 text-left">Status</th>
               <th className="px-4 py-2 text-left">CAPA</th>
             </tr>
@@ -808,6 +826,18 @@ function FindingsTab() {
                     {fmtDate(f.due_date)}{overdue ? " ⚠" : ""}
                   </td>
                   <td className="px-4 py-3">
+                    <select
+                      value={f.responsible_user_id ?? ""}
+                      onChange={e => updateFinding.mutate({ id: f.id, data: { responsible_user_id: e.target.value ? Number(e.target.value) : null } })}
+                      className="text-xs border border-slate-200 rounded px-1.5 py-0.5 bg-white max-w-32 truncate"
+                    >
+                      <option value="">— Unassigned —</option>
+                      {(users as { id: number; email: string }[]).map(u => (
+                        <option key={u.id} value={u.id}>{u.email}</option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 rounded text-xs font-semibold ${f.status === "closed" ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-600"}`}>
                       {f.status === "closed" ? "Closed" : "Open"}
                     </span>
@@ -821,7 +851,7 @@ function FindingsTab() {
               );
             })}
             {findings.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-10 text-center text-slate-400">No findings match filters</td></tr>
+              <tr><td colSpan={8} className="px-4 py-10 text-center text-slate-400">No findings match filters</td></tr>
             )}
           </tbody>
         </table>

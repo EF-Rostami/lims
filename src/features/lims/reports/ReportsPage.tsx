@@ -368,6 +368,9 @@ const EMPTY_TEMPLATE = (): TemplateCreate => ({
   show_signature_block: true,
   footer_custom_text: null,
   watermark_text: null,
+  accreditation_body: null,
+  accreditation_number: null,
+  accreditation_scope: null,
 });
 
 function TemplateEditor({
@@ -402,6 +405,9 @@ function TemplateEditor({
           show_signature_block: template.show_signature_block,
           footer_custom_text: template.footer_custom_text,
           watermark_text: template.watermark_text,
+          accreditation_body: template.accreditation_body,
+          accreditation_number: template.accreditation_number,
+          accreditation_scope: template.accreditation_scope,
         }
   );
 
@@ -570,6 +576,25 @@ function TemplateEditor({
           <div className="space-y-1">
             <Label>Header Custom Text</Label>
             <Textarea rows={2} value={form.header_custom_text ?? ""} onChange={(e) => set("header_custom_text", e.target.value || null)} placeholder="Optional disclaimer or lab statement shown below the logo" />
+          </div>
+        </section>
+
+        {/* Accreditation */}
+        <section className="space-y-3">
+          <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Accreditation (GAP-022)</h4>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label>Accreditation Body</Label>
+              <Input value={form.accreditation_body ?? ""} onChange={(e) => set("accreditation_body", e.target.value || null)} placeholder="e.g. UKAS, DAkkS, ILAC" />
+            </div>
+            <div className="space-y-1">
+              <Label>Accreditation Number</Label>
+              <Input value={form.accreditation_number ?? ""} onChange={(e) => set("accreditation_number", e.target.value || null)} placeholder="e.g. ISO 17025 #1234" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label>Scope Reference</Label>
+            <Input value={form.accreditation_scope ?? ""} onChange={(e) => set("accreditation_scope", e.target.value || null)} placeholder="e.g. Schedule No. 2345 — Microbiology" />
           </div>
         </section>
 

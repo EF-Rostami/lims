@@ -1,5 +1,13 @@
 import { limsApi } from "@/lib/lims-api";
 
+export interface DocumentAcknowledgementRead {
+  id: number;
+  document_id: number;
+  user_id: number;
+  version: string;
+  acknowledged_at: string;
+}
+
 export interface DocumentTypeRead {
   id: number;
   name: string;
@@ -79,6 +87,16 @@ export const qmsDocumentsApi = {
 
   revise: async (id: number, data: InternalDocumentRevise): Promise<InternalDocumentRead> => {
     const res = await limsApi.post<InternalDocumentRead>(`/documents/${id}/revise`, data);
+    return res.data;
+  },
+
+  acknowledge: async (docId: number, userId: number): Promise<DocumentAcknowledgementRead> => {
+    const res = await limsApi.post<DocumentAcknowledgementRead>(`/documents/${docId}/acknowledge`, { user_id: userId });
+    return res.data;
+  },
+
+  listAcknowledgements: async (docId: number): Promise<DocumentAcknowledgementRead[]> => {
+    const res = await limsApi.get<DocumentAcknowledgementRead[]>(`/documents/${docId}/acknowledgements`);
     return res.data;
   },
 };

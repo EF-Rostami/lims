@@ -7,6 +7,8 @@ interface LimsPageLayoutProps {
   description?: string;
   actionLabel?: string;
   onAction?: () => void;
+  /** Extra elements rendered in the header action area (e.g. Export/Import buttons) */
+  headerExtra?: ReactNode;
   children: ReactNode;
 }
 
@@ -15,6 +17,7 @@ export function LimsPageLayout({
   description,
   actionLabel,
   onAction,
+  headerExtra,
   children,
 }: LimsPageLayoutProps) {
   return (
@@ -26,12 +29,15 @@ export function LimsPageLayout({
             <p className="mt-1 text-sm text-slate-500">{description}</p>
           )}
         </div>
-        {actionLabel && onAction && (
-          <Button onClick={onAction}>
-            <Plus className="h-4 w-4 mr-1.5" />
-            {actionLabel}
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {headerExtra}
+          {actionLabel && onAction && (
+            <Button onClick={onAction}>
+              <Plus className="h-4 w-4 mr-1.5" />
+              {actionLabel}
+            </Button>
+          )}
+        </div>
       </div>
       {children}
     </div>

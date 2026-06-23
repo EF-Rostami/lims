@@ -35,7 +35,10 @@ export function useAssignRole() {
   return useMutation({
     mutationFn: ({ userId, roleName }: { userId: number; roleName: RoleType }) =>
       usersApi.assignRole(userId, roleName),
-    onSuccess: (_, { userId }) => qc.invalidateQueries({ queryKey: userKeys.detail(userId) }),
+    onSuccess: (_, { userId }) => {
+      qc.invalidateQueries({ queryKey: userKeys.detail(userId) });
+      qc.invalidateQueries({ queryKey: userKeys.all });
+    },
   });
 }
 
@@ -44,6 +47,9 @@ export function useRemoveRole() {
   return useMutation({
     mutationFn: ({ userId, roleName }: { userId: number; roleName: RoleType }) =>
       usersApi.removeRole(userId, roleName),
-    onSuccess: (_, { userId }) => qc.invalidateQueries({ queryKey: userKeys.detail(userId) }),
+    onSuccess: (_, { userId }) => {
+      qc.invalidateQueries({ queryKey: userKeys.detail(userId) });
+      qc.invalidateQueries({ queryKey: userKeys.all });
+    },
   });
 }

@@ -1,7 +1,7 @@
 import { limsApi } from "@/lib/lims-api";
 import type { components } from "@/generated/lims/api";
 
-export type UserRead = components["schemas"]["UserRead"];
+export type UserRead = components["schemas"]["UserRead"] & { roles?: string[] };
 export type TenantUserCreate = components["schemas"]["TenantUserCreate"];
 export type TenantUserMetadata = components["schemas"]["TenantUserMetadata"];
 export type RoleType = components["schemas"]["RoleType"];

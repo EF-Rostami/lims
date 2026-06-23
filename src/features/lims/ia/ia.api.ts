@@ -83,6 +83,7 @@ export interface IAFindingRead {
   ca_description?: string | null;
   closed_at?: string | null;
   reported_by_user_id?: number | null;
+  responsible_user_id?: number | null;
   capa_finding_id?: number | null;
 }
 
@@ -120,6 +121,7 @@ export interface IAFindingCreate {
   clause_ref?: string | null;
   checklist_item_id?: number | null;
   due_date?: string | null;
+  responsible_user_id?: number | null;
 }
 
 export interface IAFindingUpdate {
@@ -129,6 +131,7 @@ export interface IAFindingUpdate {
   clause_ref?: string | null;
   due_date?: string | null;
   ca_description?: string | null;
+  responsible_user_id?: number | null;
 }
 
 // ── Summary ───────────────────────────────────────────────────────────────────

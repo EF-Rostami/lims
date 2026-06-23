@@ -144,6 +144,11 @@ function EnterDialog({ result, onClose }: EnterDialogProps) {
               {" · "}Order Item #{result.order_item_id}
             </p>
           )}
+          {result?.previous_result_value && (
+            <p className="text-xs text-amber-600 mt-1 bg-amber-50 border border-amber-100 rounded px-2 py-1">
+              Previous value: <strong>{result.previous_result_value}</strong>
+            </p>
+          )}
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-3 mt-1">
@@ -460,6 +465,11 @@ function ResultRow({ result: r, onEnter, onValidate, onApprove, onReject, isVali
         )}
         {r.dilution_factor && (
           <p className="text-xs text-slate-400">×{r.dilution_factor} dilution</p>
+        )}
+        {r.previous_result_value && r.status === "REJECTED" && (
+          <p className="text-xs text-amber-600 mt-0.5" title="Value before rejection">
+            Prev: {r.previous_result_value}
+          </p>
         )}
       </td>
 

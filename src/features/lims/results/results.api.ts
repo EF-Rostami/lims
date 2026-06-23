@@ -42,6 +42,7 @@ export interface ResultRead {
   approved_at?: string | null;
   rejection_reason?: string | null;
   comments?: string | null;
+  previous_result_value?: string | null;
 }
 
 export interface ListResultsParams {

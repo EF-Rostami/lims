@@ -35,6 +35,9 @@ export interface ReportTemplate {
   show_signature_block: boolean;
   footer_custom_text: string | null;
   watermark_text: string | null;
+  accreditation_body: string | null;
+  accreditation_number: string | null;
+  accreditation_scope: string | null;
   created_by_user_id: number | null;
   created_at: string;
   updated_at: string;

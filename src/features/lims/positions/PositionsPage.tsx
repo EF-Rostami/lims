@@ -10,9 +10,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { LimsPageLayout } from "@/features/lims/components/LimsPageLayout";
 import { LimsTable } from "@/features/lims/components/LimsTable";
+import { ExcelButtons } from "@/components/ExcelButtons";
 import { usePositions, useCreatePosition, useUpdatePosition, useDeletePosition } from "./positions.queries";
+import { positionsApi } from "./positions.api";
 import { useDepartments } from "@/features/lims/departments/departments.queries";
+import { departmentsApi } from "@/features/lims/departments/departments.api";
 import type { PositionRead, PositionCreate, PositionUpdate } from "./positions.api";
+import { limsApi } from "@/lib/lims-api";
 
 const emptyCreate = (): PositionCreate => ({
   title: "",
@@ -70,6 +74,27 @@ export function PositionsPage() {
       description="Job titles and reporting structure"
       actionLabel="New Position"
       onAction={openCreate}
+      headerExtra={
+        <ExcelButtons
+          exportFilename="positions"
+          onExport={async () => {
+            const [rows, depts] = await Promise.all([positionsApi.list(), departmentsApi.list()]);
+            const deptCode = (id: number) => depts.find((d) => d.id === id)?.code ?? String(id);
+            return rows.map((p) => ({
+              title: p.title,
+              department_code: deptCode(p.department_id),
+              headcount: p.headcount ?? "",
+            }));
+          }}
+          onImport={async (rows) => {
+            const res = await limsApi.post<{ imported: number; errors: { row: number; message: string }[] }>(
+              "/positions/import",
+              rows,
+            );
+            return res.data;
+          }}
+        />
+      }
     >
       <LimsTable
         data={positions}

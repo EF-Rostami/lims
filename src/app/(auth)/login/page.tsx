@@ -8,6 +8,7 @@ import Link from "next/link";
 
 import { useLimsAuthStore } from "@/features/lims-auth/lims-auth.store";
 import { workspacesApi, TenantWorkspace } from "@/features/lims-auth/workspaces.api";
+import { getTenantSlugFromHost } from "@/lib/tenant";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,8 +16,12 @@ export default function LoginPage() {
   const verifyMfa = useLimsAuthStore((s) => s.verifyMfa);
   const status = useLimsAuthStore((s) => s.status);
 
+  // Detect subdomain mode once (client-side only)
+  const tenantSlugFromHost = getTenantSlugFromHost();
+  const isSubdomainMode = tenantSlugFromHost !== null;
+
   const [loading, setLoading] = useState(false);
-  const [loadingTenants, setLoadingTenants] = useState(true);
+  const [loadingTenants, setLoadingTenants] = useState(!isSubdomainMode);
   const [error, setError] = useState("");
 
   const [tenants, setTenants] = useState<TenantWorkspace[]>([]);
@@ -32,6 +37,9 @@ export default function LoginPage() {
   const [backupCode, setBackupCode] = useState("");
 
   useEffect(() => {
+    // Skip workspace list fetch when tenant is known from subdomain
+    if (isSubdomainMode) return;
+
     workspacesApi
       .list()
       .then((list) => {
@@ -41,7 +49,7 @@ export default function LoginPage() {
       })
       .catch(() => setUseManual(true))
       .finally(() => setLoadingTenants(false));
-  }, []);
+  }, [isSubdomainMode]);
 
   // Redirect on successful auth
   useEffect(() => {
@@ -51,7 +59,14 @@ export default function LoginPage() {
     }
   }, [status, router]);
 
-  const activeSchema = useManual ? manualSchema.trim() : selectedSchema;
+  // In subdomain mode the slug is used as the schema identifier.
+  // The backend reads the actual tenant from the Host header, so this value
+  // is only stored in sessionStorage as a session key — not sent as x-tenant-schema.
+  const activeSchema = isSubdomainMode
+    ? tenantSlugFromHost!
+    : useManual
+      ? manualSchema.trim()
+      : selectedSchema;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,63 +202,72 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
 
-          {/* Workspace selector */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">Laboratory Workspace</label>
-              {!loadingTenants && (
-                <button
-                  type="button"
-                  onClick={() => setUseManual((v) => !v)}
-                  className="text-xs text-blue-600 hover:underline flex items-center gap-1"
-                >
-                  <PenLine size={11} />
-                  {useManual ? "Pick from list" : "Enter manually"}
-                </button>
+          {/* Workspace — hidden in subdomain mode (tenant is known from the URL) */}
+          {isSubdomainMode ? (
+            <div className="flex items-center gap-2 px-3 py-2 border rounded-md bg-blue-50 text-sm text-blue-700">
+              <Building2 size={14} className="shrink-0" />
+              <span>
+                Workspace: <span className="font-semibold font-mono">{tenantSlugFromHost}</span>
+              </span>
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Laboratory Workspace</label>
+                {!loadingTenants && (
+                  <button
+                    type="button"
+                    onClick={() => setUseManual((v) => !v)}
+                    className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                  >
+                    <PenLine size={11} />
+                    {useManual ? "Pick from list" : "Enter manually"}
+                  </button>
+                )}
+              </div>
+
+              {loadingTenants ? (
+                <div className="flex items-center gap-2 px-3 py-2 border rounded-md bg-muted/30 text-sm text-muted-foreground">
+                  <Loader2 size={14} className="animate-spin" />
+                  Loading workspaces…
+                </div>
+              ) : useManual ? (
+                <div className="relative">
+                  <Building2 className="absolute left-3 top-2.5 text-muted-foreground" size={16} />
+                  <input
+                    type="text"
+                    required
+                    className="w-full pl-9 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none text-sm"
+                    placeholder="e.g. demo_lab"
+                    value={manualSchema}
+                    onChange={(e) => setManualSchema(e.target.value)}
+                  />
+                </div>
+              ) : (
+                <div className="relative">
+                  <Building2 className="absolute left-3 top-2.5 text-muted-foreground" size={16} />
+                  <select
+                    required
+                    className="w-full pl-9 pr-4 py-2 bg-background border rounded-md focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none appearance-none cursor-pointer text-sm"
+                    value={selectedSchema}
+                    onChange={(e) => setSelectedSchema(e.target.value)}
+                  >
+                    {tenants.map((t) => (
+                      <option key={t.schema_name} value={t.schema_name}>
+                        {t.name} ({t.schema_name})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {!loadingTenants && !useManual && (
+                <p className="text-xs text-muted-foreground">
+                  Active schema: <span className="font-mono text-blue-600">{selectedSchema || "—"}</span>
+                </p>
               )}
             </div>
-
-            {loadingTenants ? (
-              <div className="flex items-center gap-2 px-3 py-2 border rounded-md bg-muted/30 text-sm text-muted-foreground">
-                <Loader2 size={14} className="animate-spin" />
-                Loading workspaces…
-              </div>
-            ) : useManual ? (
-              <div className="relative">
-                <Building2 className="absolute left-3 top-2.5 text-muted-foreground" size={16} />
-                <input
-                  type="text"
-                  required
-                  className="w-full pl-9 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none text-sm"
-                  placeholder="e.g. demo_lab"
-                  value={manualSchema}
-                  onChange={(e) => setManualSchema(e.target.value)}
-                />
-              </div>
-            ) : (
-              <div className="relative">
-                <Building2 className="absolute left-3 top-2.5 text-muted-foreground" size={16} />
-                <select
-                  required
-                  className="w-full pl-9 pr-4 py-2 bg-background border rounded-md focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none appearance-none cursor-pointer text-sm"
-                  value={selectedSchema}
-                  onChange={(e) => setSelectedSchema(e.target.value)}
-                >
-                  {tenants.map((t) => (
-                    <option key={t.schema_name} value={t.schema_name}>
-                      {t.name} ({t.schema_name})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {!loadingTenants && !useManual && (
-              <p className="text-xs text-muted-foreground">
-                Active schema: <span className="font-mono text-blue-600">{selectedSchema || "—"}</span>
-              </p>
-            )}
-          </div>
+          )}
 
           {/* Email */}
           <div className="space-y-1.5">

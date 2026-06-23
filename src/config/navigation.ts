@@ -5,7 +5,7 @@ import {
   BarChart3, AlertTriangle, ScrollText, FolderOpen, PenLine,
   Building2, Briefcase, ShieldCheck, GanttChart, UserCog, FileSpreadsheet,
   Package, Thermometer, Atom, GraduationCap, Beaker, Activity, Sigma, ClipboardCheck,
-  GitBranch, Bell, MessageSquareWarning, FileText,
+  GitBranch, Bell, MessageSquareWarning, FileText, BookOpen, Target, CalendarDays,
 } from "lucide-react";
 
 export interface NavItem {
@@ -17,6 +17,36 @@ export interface NavItem {
   requiredPermissions?: string[];
   section?: string;
 }
+
+/** Roles that indicate a "full LIMS" user — consultant sidebar is for everyone else. */
+export const FULL_LIMS_ROLES: RoleType[] = [
+  "admin",
+  "head_of_laboratory",
+  "quality_manager",
+  "technical_manager",
+];
+
+/**
+ * Consultant-only sidebar shown when the user holds CONSULTANT or LEAD_AUDITOR
+ * but does NOT hold any FULL_LIMS_ROLES role.
+ */
+export const consultantSidebarConfig: NavItem[] = [
+  // Consultant work
+  { title: "Projects", href: "/consultant/projects", icon: Target, section: "consultant" },
+  { title: "Frameworks", href: "/consultant/frameworks", icon: BookOpen, section: "consultant" },
+  { title: "Meetings", href: "/consultant/meetings", icon: CalendarDays, section: "consultant" },
+
+  // Lab entities — for lifecycle transitions only (no samples/orders/results/QC)
+  { title: "Instruments", href: "/lims/instruments", icon: Wrench, section: "lab_entities" },
+  { title: "Methods", href: "/lims/methods", icon: FlaskConical, section: "lab_entities" },
+  { title: "Documents", href: "/lims/qms-documents", icon: FileText, section: "lab_entities" },
+  { title: "Competence", href: "/lims/competence", icon: GraduationCap, section: "lab_entities" },
+];
+
+export const consultantSectionLabels: Record<string, string> = {
+  consultant: "Consultancy",
+  lab_entities: "Lab Entities",
+};
 
 export const sidebarConfig: NavItem[] = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, section: "main" },
@@ -72,6 +102,22 @@ export const sidebarConfig: NavItem[] = [
     section: "qms",
   },
 
+  // Accreditation (consultancy module — visible to consultant, lead_auditor, admin, quality_manager)
+  {
+    title: "Acc. Projects",
+    href: "/consultant/projects",
+    icon: Target,
+    requiredPermissions: ["consultancy.read"],
+    section: "accreditation",
+  },
+  {
+    title: "Frameworks",
+    href: "/consultant/frameworks",
+    icon: BookOpen,
+    requiredPermissions: ["consultancy.read"],
+    section: "accreditation",
+  },
+
   // LIMS Operations
   { title: "Clients", href: "/lims/clients", icon: Building2, section: "lims" },
   { title: "Samples", href: "/lims/samples", icon: TestTube2, section: "lims" },
@@ -100,6 +146,8 @@ export const sidebarConfig: NavItem[] = [
 
   // Admin
   { title: "Users", href: "/lims/hr/users", icon: Users, requiredRoles: ["admin"], section: "admin" },
+  { title: "Employees", href: "/lims/hr/employees", icon: UserCog, requiredRoles: ["admin", "hr"], section: "admin" },
   { title: "Departments", href: "/lims/hr/departments", icon: Briefcase, requiredRoles: ["admin"], section: "admin" },
   { title: "Positions", href: "/lims/hr/positions", icon: ShieldCheck, requiredRoles: ["admin"], section: "admin" },
+  { title: "Responsibilities", href: "/lims/hr/responsibilities", icon: ClipboardCheck, requiredRoles: ["admin", "quality_manager"], section: "admin" },
 ];

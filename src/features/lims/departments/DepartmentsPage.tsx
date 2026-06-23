@@ -9,8 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { LimsPageLayout } from "@/features/lims/components/LimsPageLayout";
 import { LimsTable } from "@/features/lims/components/LimsTable";
+import { ExcelButtons } from "@/components/ExcelButtons";
 import { useDepartments, useCreateDepartment, useUpdateDepartment, useDeleteDepartment } from "./departments.queries";
+import { departmentsApi } from "./departments.api";
 import type { DepartmentRead, DepartmentCreate, DepartmentUpdate } from "./departments.api";
+import { limsApi } from "@/lib/lims-api";
 
 const emptyCreate = (): DepartmentCreate => ({ name: "", code: "", parent_id: null });
 
@@ -54,6 +57,22 @@ export function DepartmentsPage() {
       description="Organisational units within the laboratory"
       actionLabel="New Department"
       onAction={openCreate}
+      headerExtra={
+        <ExcelButtons
+          exportFilename="departments"
+          onExport={async () => {
+            const rows = await departmentsApi.list();
+            return rows.map((d) => ({ name: d.name, code: d.code }));
+          }}
+          onImport={async (rows) => {
+            const res = await limsApi.post<{ imported: number; errors: { row: number; message: string }[] }>(
+              "/departments/import",
+              rows,
+            );
+            return res.data;
+          }}
+        />
+      }
     >
       <LimsTable
         data={departments}

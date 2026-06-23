@@ -1,9 +1,11 @@
 import Link from "next/link";
 import {
-  FlaskConical, ShieldCheck, ClipboardList, Users, BarChart3,
-  Wrench, FileText, ArrowRight, CheckCircle, Star, Microscope,
-  Building2, Zap, Lock, Globe, ChevronRight, Play,
+  FlaskConical, ClipboardList, Users, BarChart3,
+  Wrench, ArrowRight, CheckCircle, Star, Microscope,
+  Zap, Play,
 } from "lucide-react";
+import { MarketingNav } from "@/components/marketing/nav";
+import { MarketingFooter } from "@/components/marketing/footer";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -140,43 +142,6 @@ const trustBadges = [
 ];
 
 // ─── Components ───────────────────────────────────────────────────────────────
-
-function Nav() {
-  return (
-    <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-            <span className="text-white font-bold text-sm">B</span>
-          </div>
-          <span className="font-bold text-gray-900 text-lg">BLIMS</span>
-        </div>
-        <div className="hidden md:flex items-center gap-8 text-sm text-gray-600">
-          <a href="#features" className="hover:text-gray-900 transition-colors">Features</a>
-          <a href="#how-it-works" className="hover:text-gray-900 transition-colors">How it works</a>
-          <a href="#pricing" className="hover:text-gray-900 transition-colors">Pricing</a>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link href="/login" className="text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors">
-            Sign in
-          </Link>
-          <Link
-            href="/demo"
-            className="hidden sm:flex items-center gap-1.5 text-sm text-blue-600 border border-blue-200 px-4 py-2 rounded-lg hover:bg-blue-50 font-medium transition-colors"
-          >
-            <Play className="w-3 h-3 fill-blue-600" /> Live demo
-          </Link>
-          <Link
-            href="/register"
-            className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium transition-colors"
-          >
-            Start free trial
-          </Link>
-        </div>
-      </div>
-    </nav>
-  );
-}
 
 function Hero() {
   return (
@@ -589,66 +554,13 @@ function CtaBanner() {
   );
 }
 
-function Footer() {
-  return (
-    <footer className="bg-gray-900 text-gray-400 py-12">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid md:grid-cols-4 gap-8 mb-10">
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
-                <span className="text-white font-bold text-xs">B</span>
-              </div>
-              <span className="font-bold text-white">BLIMS</span>
-            </div>
-            <p className="text-sm leading-relaxed">
-              Laboratory Information Management System for accredited testing and calibration labs.
-            </p>
-          </div>
-          <div>
-            <h4 className="text-white font-semibold text-sm mb-3">Product</h4>
-            <ul className="space-y-2 text-sm">
-              <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-              <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
-              <li><a href="#how-it-works" className="hover:text-white transition-colors">How it works</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-white font-semibold text-sm mb-3">Company</h4>
-            <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">About</a></li>
-              <li><a href="mailto:sales@blims.io" className="hover:text-white transition-colors">Contact</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-white font-semibold text-sm mb-3">Legal</h4>
-            <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Security</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="border-t border-gray-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          <p>© {new Date().getFullYear()} BLIMS. All rights reserved.</p>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5"><Lock className="w-3 h-3" /> SSL Secured</div>
-            <div className="flex items-center gap-1.5"><Globe className="w-3 h-3" /> Global CDN</div>
-            <div className="flex items-center gap-1.5"><Building2 className="w-3 h-3" /> Multi-tenant</div>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default function MarketingPage() {
   return (
     <>
-      <Nav />
+      <MarketingNav />
       <Hero />
       <TrustBar />
       <Features />
@@ -657,7 +569,7 @@ export default function MarketingPage() {
       <Testimonials />
       <Pricing />
       <CtaBanner />
-      <Footer />
+      <MarketingFooter />
     </>
   );
 }

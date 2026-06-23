@@ -6,6 +6,10 @@ import {
   type InternalDocumentRevise,
 } from "./qms-documents.api";
 
+export const qmsAckKeys = {
+  list: (docId: number) => ["lims", "qms-documents", docId, "acknowledgements"] as const,
+};
+
 export const qmsDocKeys = {
   all: ["lims", "qms-documents"] as const,
   list: () => [...qmsDocKeys.all, "list"] as const,
@@ -58,5 +62,24 @@ export function useReviseQmsDocument() {
     mutationFn: ({ id, data }: { id: number; data: InternalDocumentRevise }) =>
       qmsDocumentsApi.revise(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: qmsDocKeys.all }),
+  });
+}
+
+export function useDocumentAcknowledgements(docId: number | null) {
+  return useQuery({
+    queryKey: qmsAckKeys.list(docId ?? 0),
+    queryFn: () => qmsDocumentsApi.listAcknowledgements(docId!),
+    enabled: !!docId,
+  });
+}
+
+export function useAcknowledgeDocument() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ docId, userId }: { docId: number; userId: number }) =>
+      qmsDocumentsApi.acknowledge(docId, userId),
+    onSuccess: (_, { docId }) => {
+      qc.invalidateQueries({ queryKey: qmsAckKeys.list(docId) });
+    },
   });
 }

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import {
   LayoutDashboard,
+  BarChart2,
   Building2,
   Server,
   CreditCard,
@@ -21,6 +22,7 @@ import { SaasAuthBootstrap } from "@/features/saas/auth/SaasAuthBootstrap";
 
 const navItems = [
   { label: "Dashboard", href: "/saas/dashboard", icon: LayoutDashboard },
+  { label: "Analytics", href: "/saas/analytics", icon: BarChart2 },
   { label: "Organizations", href: "/saas/organizations", icon: Building2 },
   { label: "Tenants", href: "/saas/tenants", icon: Server },
   { label: "Subscriptions", href: "/saas/subscriptions", icon: CreditCard },

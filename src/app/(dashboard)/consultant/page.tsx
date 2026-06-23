@@ -10,7 +10,7 @@ import { useQMSReadiness, useRolesList } from "@/features/consultant/consultant.
 import { useCreateUser } from "@/features/lims/users/users.queries";
 import type { TenantUserCreate } from "@/features/lims/users/users.api";
 
-const CONSULTANT_ROLES = ["admin", "head_of_laboratory", "quality_manager"] as const;
+const CONSULTANT_ROLES = ["consultant", "lead_auditor"] as const;
 
 const EMPTY_FORM: TenantUserCreate = {
   first_name: "",
