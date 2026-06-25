@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Users, Plus, KeyRound, ChevronDown, UserCircle } from "lucide-react";
+import { Users, Plus, KeyRound, ChevronDown, UserCircle, AlertTriangle, RefreshCw } from "lucide-react";
 import { tenantsApi } from "@/features/saas/tenants/tenants.api";
-import { tenantUsersApi, type CreateTenantUserPayload, type TenantUser } from "@/features/saas/tenant-users/tenant-users.api";
+import { tenantUsersApi, type CreateTenantUserPayload, type TenantUser, type SeedDemoResult } from "@/features/saas/tenant-users/tenant-users.api";
 
 const ROLE_OPTIONS = [
   "admin",
@@ -47,6 +47,8 @@ export default function TenantUsersPage() {
   const [resetTarget, setResetTarget] = useState<TenantUser | null>(null);
   const [newPassword, setNewPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
+  const [showSeedConfirm, setShowSeedConfirm] = useState(false);
+  const [seedResult, setSeedResult] = useState<SeedDemoResult | null>(null);
 
   const { data: tenants = [] } = useQuery({
     queryKey: ["saas", "tenants"],
@@ -80,6 +82,15 @@ export default function TenantUsersPage() {
       qc.invalidateQueries({ queryKey: ["saas", "tenant-users", selectedTenantId] });
       setResetTarget(null);
       setNewPassword("");
+    },
+  });
+
+  const seedDemoMutation = useMutation({
+    mutationFn: () => tenantUsersApi.seedDemo(selectedTenantId),
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ["saas", "tenant-users", selectedTenantId] });
+      setShowSeedConfirm(false);
+      setSeedResult(data);
     },
   });
 
@@ -211,6 +222,48 @@ export default function TenantUsersPage() {
         </div>
       )}
 
+      {/* Seed-demo confirmation modal */}
+      {showSeedConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="rounded-xl bg-white shadow-xl p-6 w-full max-w-sm">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="rounded-full bg-red-100 p-2 flex-none">
+                <AlertTriangle className="h-5 w-5 text-red-600" />
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold text-slate-800">Reset Demo Data?</h2>
+                <p className="mt-1 text-xs text-slate-500">
+                  This will <span className="font-semibold text-red-600">permanently delete all existing data</span> in
+                  this tenant and re-seed it with fresh demo data. This cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setShowSeedConfirm(false)}
+                className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => seedDemoMutation.mutate()}
+                disabled={seedDemoMutation.isPending}
+                className="flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {seedDemoMutation.isPending ? (
+                  <>
+                    <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                    Resetting…
+                  </>
+                ) : (
+                  "Yes, Reset All Data"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Users table */}
       {!selectedTenantId ? (
         <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-12 flex flex-col items-center gap-3 text-center">
@@ -273,6 +326,46 @@ export default function TenantUsersPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+      {/* Seed result banner */}
+      {seedResult && (
+        <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 flex items-center justify-between">
+          <span>
+            Demo reset complete — <span className="font-medium">{seedResult.tables_cleared} tables cleared</span>,
+            demo user: <span className="font-medium">{seedResult.demo_email}</span>
+          </span>
+          <button onClick={() => setSeedResult(null)} className="text-green-600 hover:text-green-800 text-xs underline ml-4">
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Danger Zone */}
+      {selectedTenantId && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-5">
+          <h2 className="text-sm font-semibold text-red-800 flex items-center gap-2 mb-1">
+            <AlertTriangle className="h-4 w-4" />
+            Danger Zone
+          </h2>
+          <p className="text-xs text-red-700 mb-4">
+            Irreversible actions that affect all data in the selected tenant.
+          </p>
+          <div className="flex items-center justify-between rounded-lg border border-red-200 bg-white px-4 py-3">
+            <div>
+              <p className="text-sm font-medium text-slate-800">Reset demo data</p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Wipe all tenant data and re-seed with fresh LIMS demo data.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowSeedConfirm(true)}
+              className="flex items-center gap-2 rounded-md border border-red-300 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 transition-colors"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Reset Demo
+            </button>
           </div>
         </div>
       )}

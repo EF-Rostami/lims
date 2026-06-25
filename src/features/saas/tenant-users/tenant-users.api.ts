@@ -22,6 +22,13 @@ export type ResetTenantUserPasswordPayload = {
   new_password: string;
 };
 
+export type SeedDemoResult = {
+  schema: string;
+  demo_email: string;
+  tables_cleared: number;
+  status: string;
+};
+
 export const tenantUsersApi = {
   list: async (tenantId: string): Promise<TenantUser[]> => {
     const res = await saasApi.get<TenantUser[]>(`/customers/tenants/${tenantId}/users`);
@@ -38,6 +45,11 @@ export const tenantUsersApi = {
       `/customers/tenants/${tenantId}/users/${userId}/password`,
       payload,
     );
+    return res.data;
+  },
+
+  seedDemo: async (tenantId: string): Promise<SeedDemoResult> => {
+    const res = await saasApi.post<SeedDemoResult>(`/provisioning/tenants/${tenantId}/seed-demo`);
     return res.data;
   },
 };
