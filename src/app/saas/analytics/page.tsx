@@ -1,11 +1,10 @@
 "use client";
 
 import { ExternalLink, BarChart2, AlertCircle, Building2, Server, ClipboardList, Clock } from "lucide-react";
-import { useTrialRequests, useUpdateTrialRequestStatus } from "@/features/saas/trial-requests/trial-requests.queries";
+import { useTrialRequests } from "@/features/saas/trial-requests/trial-requests.queries";
 import { useQuery } from "@tanstack/react-query";
 import { organizationsApi } from "@/features/saas/organizations/organizations.api";
 import { tenantsApi } from "@/features/saas/tenants/tenants.api";
-import type { TrialRequestStatus } from "@/features/saas/trial-requests/trial-requests.api";
 
 const SHARE_URL = process.env.NEXT_PUBLIC_PLAUSIBLE_SHARE_URL;
 
@@ -16,15 +15,6 @@ function buildEmbedUrl(shareUrl: string): string {
   url.searchParams.set("background", "transparent");
   return url.toString();
 }
-
-const STATUS_STYLES: Record<TrialRequestStatus, string> = {
-  PENDING:     "bg-amber-100 text-amber-700",
-  CONTACTED:   "bg-blue-100 text-blue-700",
-  PROVISIONED: "bg-green-100 text-green-700",
-  REJECTED:    "bg-red-100 text-red-700",
-};
-
-const STATUS_OPTIONS: TrialRequestStatus[] = ["PENDING", "CONTACTED", "PROVISIONED", "REJECTED"];
 
 function StatCard({
   icon: Icon,
@@ -52,7 +42,7 @@ function StatCard({
 }
 
 export default function AnalyticsPage() {
-  const { data: trialRequests = [], isLoading: trLoading } = useTrialRequests();
+  const { data: trialRequests = [] } = useTrialRequests();
   const { data: organizations = [] } = useQuery({
     queryKey: ["saas", "organizations"],
     queryFn: organizationsApi.list,
@@ -61,7 +51,6 @@ export default function AnalyticsPage() {
     queryKey: ["saas", "tenants"],
     queryFn: tenantsApi.list,
   });
-  const updateStatus = useUpdateTrialRequestStatus();
 
   const now = new Date();
   const thisMonth = trialRequests.filter((r) => {
@@ -157,79 +146,6 @@ export default function AnalyticsPage() {
         </div>
       )}
 
-      {/* ── Trial Requests Table ──────────────────────────────────────── */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-700">Potential Clients — Trial Requests</h2>
-          <span className="text-xs text-slate-400">{trialRequests.length} total</span>
-        </div>
-
-        {trLoading ? (
-          <div className="px-5 py-8 text-center text-sm text-slate-400 animate-pulse">
-            Loading trial requests…
-          </div>
-        ) : trialRequests.length === 0 ? (
-          <div className="px-5 py-8 text-center text-sm text-slate-400">
-            No trial requests yet. They will appear here once someone submits the register form.
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50 text-xs font-medium text-slate-500 uppercase tracking-wide">
-                  <th className="px-4 py-3 text-left">Name</th>
-                  <th className="px-4 py-3 text-left">Email</th>
-                  <th className="px-4 py-3 text-left">Laboratory</th>
-                  <th className="px-4 py-3 text-left">Plan</th>
-                  <th className="px-4 py-3 text-left">Submitted</th>
-                  <th className="px-4 py-3 text-left">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {trialRequests.map((req) => (
-                  <tr key={req.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-3 font-medium text-slate-800">{req.full_name}</td>
-                    <td className="px-4 py-3 text-slate-600">
-                      <a href={`mailto:${req.email}`} className="hover:underline">
-                        {req.email}
-                      </a>
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">{req.lab_name}</td>
-                    <td className="px-4 py-3">
-                      <span className="capitalize text-slate-600">{req.plan}</span>
-                    </td>
-                    <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
-                      {new Date(req.created_at).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="px-4 py-3">
-                      <select
-                        value={req.status}
-                        onChange={(e) =>
-                          updateStatus.mutate({
-                            id: req.id,
-                            status: e.target.value as TrialRequestStatus,
-                          })
-                        }
-                        className={`rounded-full px-2.5 py-0.5 text-xs font-semibold border-0 cursor-pointer ${STATUS_STYLES[req.status]}`}
-                      >
-                        {STATUS_OPTIONS.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
     </div>
   );
 }

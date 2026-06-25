@@ -8,30 +8,51 @@ import {
   BarChart2,
   Building2,
   Server,
-  CreditCard,
-  Zap,
-  FileText,
+  ClipboardList,
   Users,
+  FileText,
+  CreditCard,
   UserCog,
-  Receipt,
-  LogOut,
   UserCircle,
+  LogOut,
 } from "lucide-react";
 import { useSaasAuthStore } from "@/features/saas/auth/saas-auth.store";
 import { SaasAuthBootstrap } from "@/features/saas/auth/SaasAuthBootstrap";
 
-const navItems = [
-  { label: "Dashboard", href: "/saas/dashboard", icon: LayoutDashboard },
-  { label: "Analytics", href: "/saas/analytics", icon: BarChart2 },
-  { label: "Organizations", href: "/saas/organizations", icon: Building2 },
-  { label: "Tenants", href: "/saas/tenants", icon: Server },
-  { label: "Subscriptions", href: "/saas/subscriptions", icon: CreditCard },
-  { label: "Provisioning", href: "/saas/provisioning", icon: Zap },
-  { label: "Audit Logs", href: "/saas/audit-logs", icon: FileText },
-  { label: "Customers", href: "/saas/customers", icon: Users },
-  { label: "Platform Users", href: "/saas/users", icon: UserCog },
-  { label: "Billing", href: "/saas/billing", icon: Receipt },
-  { label: "Account", href: "/saas/account", icon: UserCircle },
+type NavItem = { label: string; href: string; icon: React.ElementType };
+type NavGroup = { heading: string; items: NavItem[] };
+
+const navGroups: NavGroup[] = [
+  {
+    heading: "Overview",
+    items: [
+      { label: "Dashboard", href: "/saas/dashboard", icon: LayoutDashboard },
+      { label: "Analytics", href: "/saas/analytics", icon: BarChart2 },
+    ],
+  },
+  {
+    heading: "Customer Pipeline",
+    items: [
+      { label: "Organizations", href: "/saas/organizations", icon: Building2 },
+      { label: "Tenants", href: "/saas/tenants", icon: Server },
+      { label: "Trial Requests", href: "/saas/trial-requests", icon: ClipboardList },
+    ],
+  },
+  {
+    heading: "Operations",
+    items: [
+      { label: "Tenant Users", href: "/saas/tenant-users", icon: Users },
+      { label: "Audit Logs", href: "/saas/audit-logs", icon: FileText },
+    ],
+  },
+  {
+    heading: "Platform",
+    items: [
+      { label: "Billing", href: "/saas/billing", icon: CreditCard },
+      { label: "Platform Users", href: "/saas/users", icon: UserCog },
+      { label: "Account", href: "/saas/account", icon: UserCircle },
+    ],
+  },
 ];
 
 function SaasLayoutContent({ children }: { children: React.ReactNode }) {
@@ -73,24 +94,33 @@ function SaasLayoutContent({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Nav — scrolls when content is taller than available space */}
-        <nav className="mt-4 flex-1 overflow-y-auto space-y-0.5 px-3 text-sm">
-          {navItems.map(({ label, href, icon: Icon }) => {
-            const isActive = pathname === href;
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive
-                    ? "bg-white text-slate-950"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                }`}
-              >
-                <Icon className="h-4 w-4 shrink-0" />
-                {label}
-              </Link>
-            );
-          })}
+        <nav className="mt-4 flex-1 overflow-y-auto px-3 text-sm pb-2">
+          {navGroups.map((group) => (
+            <div key={group.heading} className="mb-4">
+              <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+                {group.heading}
+              </p>
+              <div className="space-y-0.5">
+                {group.items.map(({ label, href, icon: Icon }) => {
+                  const isActive = pathname === href;
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                        isActive
+                          ? "bg-white text-slate-950"
+                          : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      }`}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      {label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* User + Logout — always visible at the bottom */}
