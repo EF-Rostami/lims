@@ -65,15 +65,15 @@ function SaasLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-slate-100">
-      <aside className="fixed left-0 top-0 flex h-full w-64 flex-col bg-slate-950 text-white">
+      <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col bg-slate-950 text-white">
         {/* Brand */}
-        <div className="px-6 pt-6 pb-2">
+        <div className="flex-none px-6 pt-6 pb-2">
           <h2 className="text-lg font-semibold tracking-tight">BLIMS</h2>
           <p className="mt-0.5 text-xs text-slate-400">Platform Console</p>
         </div>
 
-        {/* Nav */}
-        <nav className="mt-4 flex-1 space-y-0.5 px-3 text-sm">
+        {/* Nav — scrolls when content is taller than available space */}
+        <nav className="mt-4 flex-1 overflow-y-auto space-y-0.5 px-3 text-sm">
           {navItems.map(({ label, href, icon: Icon }) => {
             const isActive = pathname === href;
             return (
@@ -93,8 +93,8 @@ function SaasLayoutContent({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        {/* User + Logout */}
-        <div className="border-t border-slate-800 px-4 py-4">
+        {/* User + Logout — always visible at the bottom */}
+        <div className="flex-none border-t border-slate-800 px-4 py-4">
           <p className="truncate text-xs font-medium text-white">{user.email}</p>
           <p className="mt-0.5 text-xs text-slate-500">Platform Admin</p>
           <button
