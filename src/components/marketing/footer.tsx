@@ -44,7 +44,11 @@ export function MarketingFooter() {
           </div>
         </div>
         <div className="border-t border-gray-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          <p>© {new Date().getFullYear()} BLIMS. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} BLIMS. All rights reserved.
+          </p>
+          <div className="flex items-center gap-4">
+            <p>Contact : info@my-lims.com</p>
+          </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5"><Lock className="w-3 h-3" /> SSL Secured</div>
             <div className="flex items-center gap-1.5"><Globe className="w-3 h-3" /> Global CDN</div>
