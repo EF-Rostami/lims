@@ -13,6 +13,7 @@ import { LimsPageLayout } from "@/features/lims/components/LimsPageLayout";
 import { LimsTable } from "@/features/lims/components/LimsTable";
 import { LimsStatusBadge } from "@/features/lims/components/LimsStatusBadge";
 import { useClients, useCreateClient, useUpdateClient, useDeleteClient } from "./clients.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import { clientsApi } from "./clients.api";
 import type { ClientRead, ClientCreate } from "./clients.api";
 
@@ -33,6 +34,7 @@ const emptyForm = (): ClientCreate => ({
 });
 
 export function ClientsPage() {
+  const t = useT("clients");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ClientRead | null>(null);
   const [form, setForm] = useState<ClientCreate>(emptyForm());
@@ -90,21 +92,21 @@ export function ClientsPage() {
 
   return (
     <LimsPageLayout
-      title="Clients"
-      description="External clients and referring organisations"
-      actionLabel="Add Client"
+      title={t("title")}
+      description={t("subtitle")}
+      actionLabel={t("addClient")}
       onAction={openCreate}
     >
       <LimsTable
         data={clients}
         isLoading={isLoading}
-        emptyMessage="No clients yet. Add your first client."
+        emptyMessage={t("noClients")}
         columns={[
-          { header: "Name", render: (c) => <span className="font-medium">{c.name}</span> },
-          { header: "Code", render: (c) => <span className="font-mono text-xs">{c.code}</span> },
-          { header: "Type", render: (c) => <LimsStatusBadge status={c.client_type} /> },
-          { header: "Contact", render: (c) => <span className="text-slate-500">{c.contact_email ?? c.contact_phone ?? "—"}</span> },
-          { header: "Active", render: (c) => <LimsStatusBadge status={c.is_active ? "ACTIVE" : "INACTIVE"} /> },
+          { header: t("name"), render: (c) => <span className="font-medium">{c.name}</span> },
+          { header: t("code"), render: (c) => <span className="font-mono text-xs">{c.code}</span> },
+          { header: t("type"), render: (c) => <LimsStatusBadge status={c.client_type} /> },
+          { header: t("contact"), render: (c) => <span className="text-slate-500">{c.contact_email ?? c.contact_phone ?? "—"}</span> },
+          { header: t("active"), render: (c) => <LimsStatusBadge status={c.is_active ? "ACTIVE" : "INACTIVE"} /> },
           {
             header: "",
             className: "w-10",

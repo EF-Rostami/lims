@@ -10,6 +10,7 @@ import { LimsPageLayout } from "@/features/lims/components/LimsPageLayout";
 import { LimsTable } from "@/features/lims/components/LimsTable";
 import { LimsStatusBadge } from "@/features/lims/components/LimsStatusBadge";
 import { useUsers, useCreateUser, useAssignRole, useRemoveRole, useUser } from "./users.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import { useRoles } from "@/features/lims/roles/roles.queries";
 import type { TenantUserCreate, UserRead } from "./users.api";
 
@@ -97,6 +98,7 @@ function ManageRolesDialog({
 }
 
 export function UsersPage() {
+  const t = useT("users");
   const [createOpen, setCreateOpen] = useState(false);
   const [form, setForm] = useState<TenantUserCreate>(emptyForm());
   const [manageUser, setManageUser] = useState<UserRead | null>(null);
@@ -123,18 +125,18 @@ export function UsersPage() {
 
   return (
     <LimsPageLayout
-      title="Users"
-      description="Lab personnel and access management"
-      actionLabel="New User"
+      title={t("title")}
+      description={t("subtitle")}
+      actionLabel={t("newUser")}
       onAction={() => { setForm(emptyForm()); setCreateOpen(true); }}
     >
       <LimsTable
         data={users}
         isLoading={isLoading}
-        emptyMessage="No users found."
+        emptyMessage={t("noUsers")}
         columns={[
-          { header: "Email", render: (u) => <span className="font-medium">{u.email}</span> },
-          { header: "Type", render: (u) => <LimsStatusBadge status={u.user_type} /> },
+          { header: t("email"), render: (u) => <span className="font-medium">{u.email}</span> },
+          { header: t("userType"), render: (u) => <LimsStatusBadge status={u.user_type} /> },
           {
             header: "Status",
             render: (u) => u.is_active
@@ -142,7 +144,7 @@ export function UsersPage() {
               : <span className="inline-flex items-center gap-1 text-xs text-red-600"><UserX className="h-3 w-3" />Inactive</span>,
           },
           {
-            header: "Consultant Roles",
+            header: t("consultantRoles"),
             render: (u) => {
               const consultantRoles = (u.roles ?? []).filter((r) =>
                 CONSULTANT_ROLES.includes(r as ConsultantRole)

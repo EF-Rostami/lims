@@ -12,6 +12,7 @@ import { LimsPageLayout } from "@/features/lims/components/LimsPageLayout";
 import { LimsTable } from "@/features/lims/components/LimsTable";
 import { BrandingSettingsTab } from "@/features/lims/branding/BrandingSettingsTab";
 import { useSettings, useCreateSetting, useUpdateSetting, useDeleteSetting } from "./settings.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import type { SettingListItem, SettingCreate, SettingUpdate } from "./settings.api";
 
 const emptyCreate = (): SettingCreate => ({
@@ -23,6 +24,7 @@ const emptyCreate = (): SettingCreate => ({
 });
 
 export function SettingsPage() {
+  const t = useT("settings");
   const [createOpen, setCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<SettingListItem | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -51,8 +53,8 @@ export function SettingsPage() {
 
   return (
     <LimsPageLayout
-      title="Lab Settings"
-      description="Key-value configuration and tenant branding"
+      title={t("title")}
+      description={t("subtitle")}
     >
       <Tabs defaultValue="general">
         <TabsList className="mb-4">
@@ -73,12 +75,12 @@ export function SettingsPage() {
           <LimsTable
         data={settings}
         isLoading={isLoading}
-        emptyMessage="No settings configured."
+        emptyMessage={t("noSettings")}
         columns={[
-          { header: "Key", render: (s) => <span className="font-mono text-sm font-medium">{s.key}</span> },
+          { header: t("key"), render: (s) => <span className="font-mono text-sm font-medium">{s.key}</span> },
           { header: "Value", render: (s) => <span className="text-slate-600">{s.is_secret ? "••••••••" : <span className="text-slate-400 italic">—</span>}</span> },
           { header: "Description", render: (s) => <span className="text-slate-500 text-sm">{s.description ?? "—"}</span> },
-          { header: "Secret", render: (s) => s.is_secret ? <span className="text-xs font-medium text-orange-600">Secret</span> : null },
+          { header: t("secret"), render: (s) => s.is_secret ? <span className="text-xs font-medium text-orange-600">Secret</span> : null },
           {
             header: "",
             className: "w-20 text-right",

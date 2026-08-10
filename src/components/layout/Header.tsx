@@ -62,14 +62,14 @@ export function Header() {
 
         <LanguageSelector />
 
-        <div className="border-l pl-4">
+        <div className="border-s ps-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-2 rounded-full hover:bg-muted px-2 py-1 transition-colors">
                 <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold select-none">
                   {initials}
                 </div>
-                <div className="text-right hidden sm:block">
+                <div className="text-end hidden sm:block">
                   <p className="text-sm font-medium leading-none">{user?.display_name || user?.email}</p>
                   <p className="text-xs text-muted-foreground capitalize mt-0.5">
                     {user?.roles?.join(", ") || user?.user_type}
@@ -84,7 +84,7 @@ export function Header() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push("/lims/account")}>
-                <Settings className="h-4 w-4 mr-2" />
+                <Settings className="h-4 w-4 me-2" />
                 {t("accountSettings")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -92,7 +92,7 @@ export function Header() {
                 onClick={handleLogout}
                 className="text-destructive focus:text-destructive"
               >
-                <LogOut className="h-4 w-4 mr-2" />
+                <LogOut className="h-4 w-4 me-2" />
                 {t("signOut")}
               </DropdownMenuItem>
             </DropdownMenuContent>

@@ -26,6 +26,7 @@ import {
   useCreateSampleType, useUpdateSampleType, useDeleteSampleType,
   useUpdateSample,
 } from "./samples.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import type {
   SampleRead, SampleCreate, SampleUpdate, SampleCondition,
   StorageLocation, StorageLocationCreate, StorageLocationUpdate,
@@ -908,13 +909,14 @@ const emptySampleForm = (): SampleCreate => ({
 // ── Page root ─────────────────────────────────────────────────────────────────
 
 export function SamplesPage() {
+  const t = useT("samples");
   const [tab, setTab] = useState("samples");
 
   return (
     <LimsPageLayout
-      title="Samples"
-      description="Track sample registration, receipt, and storage"
-      actionLabel={tab === "samples" ? "Register Sample" : tab === "storage" ? "Add Location" : "New Type"}
+      title={t("title")}
+      description={t("subtitle")}
+      actionLabel={tab === "samples" ? t("registerSample") : tab === "storage" ? t("addStorageLocation") : t("newSampleType")}
       onAction={() => {
         if (tab === "samples") {
           document.dispatchEvent(new CustomEvent("samples:open-create"));
@@ -947,6 +949,7 @@ export function SamplesPage() {
 
 // Wrap SamplesTab so the header action button can open the create dialog
 function _SamplesTabWithAction() {
+  const t = useT("samples");
   const [createOpen, setCreateOpen] = useState(false);
   const [receiveTarget, setReceiveTarget] = useState<SampleRead | null>(null);
   const [receiveCondition, setReceiveCondition] = useState<SampleCondition | "">("");
@@ -1051,10 +1054,10 @@ function _SamplesTabWithAction() {
       <LimsTable
         data={samples}
         isLoading={isLoading}
-        emptyMessage="No samples registered yet."
+        emptyMessage={t("noSamples")}
         columns={[
           {
-            header: "Barcode",
+            header: t("barcode"),
             render: (s) => <span className="font-mono text-sm font-medium">{s.barcode}</span>,
           },
           {
@@ -1066,11 +1069,11 @@ function _SamplesTabWithAction() {
             ),
           },
           {
-            header: "Condition",
+            header: t("condition"),
             render: (s) => <ConditionBadge condition={s.received_condition} />,
           },
           {
-            header: "Storage",
+            header: t("storage"),
             render: (s) => {
               const loc = s.storage_location_id ? locationById.get(s.storage_location_id) : null;
               if (!loc) return <span className="text-slate-400 text-xs">—</span>;
@@ -1086,7 +1089,7 @@ function _SamplesTabWithAction() {
             },
           },
           {
-            header: "Collected",
+            header: t("collected"),
             render: (s) => (
               <span className="text-slate-500">
                 {s.collected_at ? new Date(s.collected_at).toLocaleDateString() : "—"}

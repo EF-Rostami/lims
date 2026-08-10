@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Locale } from "./types";
-import { SUPPORTED_LOCALES, DICTS } from "./dictionaries";
+import { SUPPORTED_LOCALES, DICTS, RTL_LOCALES } from "./dictionaries";
 
 type Dict = Record<string, unknown>;
 
@@ -52,6 +52,11 @@ export function LocaleProvider({
   useEffect(() => {
     setLocaleState(initialLocale);
   }, [initialLocale]);
+
+  useEffect(() => {
+    document.documentElement.dir = RTL_LOCALES.has(locale) ? "rtl" : "ltr";
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   function setLocale(l: Locale) {
     setLocaleState(l);

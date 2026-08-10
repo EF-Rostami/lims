@@ -13,6 +13,7 @@ import { LimsPageLayout } from "@/features/lims/components/LimsPageLayout";
 import { LimsTable } from "@/features/lims/components/LimsTable";
 import { LimsStatusBadge } from "@/features/lims/components/LimsStatusBadge";
 import { useFindings, useCreateFinding, useUpdateFinding, useResolveFinding } from "./findings.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import { findingsApi } from "./findings.api";
 import type { FindingRead, FindingCreate } from "./findings.api";
 
@@ -29,6 +30,7 @@ const emptyForm = (): FindingCreate => ({
 });
 
 export function FindingsPage() {
+  const t = useT("findings");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<FindingRead | null>(null);
   const [form, setForm] = useState<FindingCreate>(emptyForm());
@@ -64,20 +66,20 @@ export function FindingsPage() {
 
   return (
     <LimsPageLayout
-      title="Findings"
-      description="Non-conformances, observations, and corrective actions"
-      actionLabel="New Finding"
+      title={t("title")}
+      description={t("subtitle")}
+      actionLabel={t("newFinding")}
       onAction={openCreate}
     >
       <LimsTable
         data={findings}
         isLoading={isLoading}
-        emptyMessage="No findings recorded."
+        emptyMessage={t("noFindings")}
         columns={[
-          { header: "Title", render: (f) => <span className="font-medium">{f.title}</span> },
-          { header: "Severity", render: (f) => <LimsStatusBadge status={f.severity} /> },
-          { header: "Status", render: (f) => <LimsStatusBadge status={f.status} /> },
-          { header: "Due", render: (f) => <span className="text-slate-500">{f.due_date ? new Date(f.due_date).toLocaleDateString() : "—"}</span> },
+          { header: t("title"), render: (f) => <span className="font-medium">{f.title}</span> },
+          { header: t("severity"), render: (f) => <LimsStatusBadge status={f.severity} /> },
+          { header: t("status"), render: (f) => <LimsStatusBadge status={f.status} /> },
+          { header: t("due"), render: (f) => <span className="text-slate-500">{f.due_date ? new Date(f.due_date).toLocaleDateString() : "—"}</span> },
           { header: "Entity", render: (f) => <span className="text-slate-500 text-xs">{f.entity_type ?? "—"} {f.entity_id ? `#${f.entity_id}` : ""}</span> },
           {
             header: "",

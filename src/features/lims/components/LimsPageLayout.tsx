@@ -33,7 +33,7 @@ export function LimsPageLayout({
           {headerExtra}
           {actionLabel && onAction && (
             <Button onClick={onAction}>
-              <Plus className="h-4 w-4 mr-1.5" />
+              <Plus className="h-4 w-4 me-1.5" />
               {actionLabel}
             </Button>
           )}

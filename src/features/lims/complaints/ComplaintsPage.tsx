@@ -21,6 +21,7 @@ import {
   useCloseComplaint,
   useNotifyCustomer,
 } from "./complaints.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import type { CustomerComplaintRead, CustomerComplaintCreate, CustomerComplaintUpdate, ComplaintCategory } from "./complaints.api";
 
 const CATEGORIES: { value: ComplaintCategory; label: string }[] = [
@@ -55,6 +56,7 @@ const emptyForm = (): CustomerComplaintCreate => ({
 });
 
 export function ComplaintsPage() {
+  const t = useT("complaints");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<CustomerComplaintRead | null>(null);
   const [form, setForm] = useState<CustomerComplaintCreate>(emptyForm());
@@ -136,22 +138,22 @@ export function ComplaintsPage() {
 
   return (
     <LimsPageLayout
-      title="Customer Complaints"
-      description="Track and resolve customer complaints per ISO 17025 §8.9"
-      actionLabel="New Complaint"
+      title={t("title")}
+      description={t("subtitle")}
+      actionLabel={t("newComplaint")}
       onAction={openCreate}
     >
       <LimsTable
         data={complaints}
         isLoading={isLoading}
-        emptyMessage="No complaints recorded."
+        emptyMessage={t("noComplaints")}
         columns={[
           {
-            header: "Number",
+            header: t("number"),
             render: (c) => <span className="font-mono text-xs font-semibold">{c.complaint_number}</span>,
           },
           {
-            header: "Customer",
+            header: t("customer"),
             render: (c) => <span className="font-medium">{c.customer_name}</span>,
           },
           {
@@ -165,11 +167,11 @@ export function ComplaintsPage() {
             render: (c) => <LimsStatusBadge status={c.status.toUpperCase()} />,
           },
           {
-            header: "Received",
+            header: t("received"),
             render: (c) => <span className="text-slate-500 text-sm">{c.received_date}</span>,
           },
           {
-            header: "Notified",
+            header: t("notified"),
             render: (c) => (
               <span className="text-slate-500 text-sm">
                 {c.customer_notified_at ? new Date(c.customer_notified_at).toLocaleDateString() : "—"}

@@ -13,6 +13,7 @@ import { LimsPageLayout } from "@/features/lims/components/LimsPageLayout";
 import { LimsTable } from "@/features/lims/components/LimsTable";
 import { LimsStatusBadge } from "@/features/lims/components/LimsStatusBadge";
 import { useOrders, useCreateOrder, useSubmitOrder, useCancelOrder } from "./orders.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import { ordersApi } from "./orders.api";
 import { useClients } from "@/features/lims/clients/clients.queries";
 import type { OrderRead, OrderListItem, OrderCreate } from "./orders.api";
@@ -29,6 +30,7 @@ const emptyForm = (): Omit<OrderCreate, "items"> => ({
 });
 
 export function OrdersPage() {
+  const t = useT("orders");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<Omit<OrderCreate, "items">>(emptyForm());
   const [viewOrder, setViewOrder] = useState<OrderRead | null>(null);
@@ -48,22 +50,22 @@ export function OrdersPage() {
 
   return (
     <LimsPageLayout
-      title="Work Orders"
-      description="Manage test requests and workflow"
-      actionLabel="New Order"
+      title={t("title")}
+      description={t("subtitle")}
+      actionLabel={t("newOrder")}
       onAction={() => { setForm(emptyForm()); setOpen(true); }}
     >
       <LimsTable
         data={orders}
         isLoading={isLoading}
-        emptyMessage="No orders yet."
+        emptyMessage={t("noOrders")}
         columns={[
-          { header: "Order #", render: (o) => <span className="font-mono text-sm font-medium">{o.order_number}</span> },
-          { header: "Client", render: (o) => <span>{clients.find((c) => c.id === o.client_id)?.name ?? "—"}</span> },
-          { header: "Priority", render: (o) => <LimsStatusBadge status={o.priority} /> },
-          { header: "Status", render: (o) => <LimsStatusBadge status={o.status} /> },
-          { header: "Items", render: (o: OrderListItem) => <span className="text-slate-500">{o.item_count}</span> },
-          { header: "Due", render: (o) => <span className="text-slate-500">{o.due_date ? new Date(o.due_date).toLocaleDateString() : "—"}</span> },
+          { header: t("orderNumber"), render: (o) => <span className="font-mono text-sm font-medium">{o.order_number}</span> },
+          { header: t("client"), render: (o) => <span>{clients.find((c) => c.id === o.client_id)?.name ?? "—"}</span> },
+          { header: t("priority"), render: (o) => <LimsStatusBadge status={o.priority} /> },
+          { header: t("status"), render: (o) => <LimsStatusBadge status={o.status} /> },
+          { header: t("items"), render: (o: OrderListItem) => <span className="text-slate-500">{o.item_count}</span> },
+          { header: t("due"), render: (o) => <span className="text-slate-500">{o.due_date ? new Date(o.due_date).toLocaleDateString() : "—"}</span> },
           {
             header: "",
             className: "w-10",

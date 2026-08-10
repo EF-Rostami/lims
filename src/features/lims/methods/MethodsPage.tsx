@@ -18,6 +18,7 @@ import { LimsTable } from "@/features/lims/components/LimsTable";
 import { LimsStatusBadge } from "@/features/lims/components/LimsStatusBadge";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { useMethods, useCreateMethod, useUpdateMethod, useDeleteMethod } from "./methods.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import { methodsApi } from "./methods.api";
 import type { TestMethodRead, TestMethodCreate } from "./methods.api";
 import { useInstruments } from "@/features/lims/instruments/instruments.queries";
@@ -47,6 +48,7 @@ const emptyForm = (): TestMethodCreate => ({
 });
 
 export function MethodsPage() {
+  const t = useT("methods");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<TestMethodRead | null>(null);
   const [form, setForm] = useState<TestMethodCreate>(emptyForm());
@@ -106,9 +108,9 @@ export function MethodsPage() {
 
   return (
     <LimsPageLayout
-      title="Test Methods"
-      description="Define analytical methods and reference ranges"
-      actionLabel="Add Method"
+      title={t("title")}
+      description={t("subtitle")}
+      actionLabel={t("addMethod")}
       onAction={openCreate}
       headerExtra={
         <ExcelButtons
@@ -130,13 +132,13 @@ export function MethodsPage() {
       <LimsTable
         data={methods}
         isLoading={isLoading}
-        emptyMessage="No methods defined yet."
+        emptyMessage={t("noMethods")}
         columns={[
           { header: "Code", render: (m) => <span className="font-mono text-xs font-medium">{m.code}</span> },
           { header: "Name", render: (m) => <span className="font-medium">{m.name}</span> },
           { header: "Version", render: (m) => <span className="text-slate-500">{m.version}</span> },
           { header: "Unit", render: (m) => <span className="text-slate-500">{m.unit ?? "—"}</span> },
-          { header: "Ref. Range", render: (m) => <span className="text-slate-500 text-xs">{m.reference_range_default ?? "—"}</span> },
+          { header: t("refRange"), render: (m) => <span className="text-slate-500 text-xs">{m.reference_range_default ?? "—"}</span> },
           { header: "Status", render: (m) => (
             <div className="flex items-center gap-1.5 flex-wrap">
               <LimsStatusBadge status={m.status} />

@@ -24,6 +24,7 @@ import {
   useDocumentAcknowledgements,
   useAcknowledgeDocument,
 } from "./qms-documents.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import type {
   InternalDocumentRead,
   InternalDocumentCreate,
@@ -61,6 +62,7 @@ const emptyRevise = (): InternalDocumentRevise => ({
 });
 
 export function QmsDocumentsPage() {
+  const t = useT("qmsDocuments");
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [reviseOpen, setReviseOpen] = useState(false);
@@ -146,18 +148,18 @@ export function QmsDocumentsPage() {
 
   return (
     <LimsPageLayout
-      title="Document Control"
-      description="Controlled documents with version history per ISO 17025 §8.3"
-      actionLabel="New Document"
+      title={t("title")}
+      description={t("subtitle")}
+      actionLabel={t("newDocument")}
       onAction={openCreate}
     >
       <LimsTable
         data={documents}
         isLoading={isLoading}
-        emptyMessage="No controlled documents. Create your first document."
+        emptyMessage={t("noDocuments")}
         columns={[
           {
-            header: "System ID",
+            header: t("systemId"),
             render: (d) => <span className="font-mono text-xs font-semibold">{d.system_id}</span>,
           },
           {
@@ -184,7 +186,7 @@ export function QmsDocumentsPage() {
             render: (d) => <LimsStatusBadge status={d.status.toUpperCase()} />,
           },
           {
-            header: "Review Due",
+            header: t("reviewDue"),
             render: (d) => (
               <span className="text-slate-500 text-sm">{d.review_due_date ?? "—"}</span>
             ),

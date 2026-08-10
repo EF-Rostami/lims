@@ -1,4 +1,4 @@
-export const SUPPORTED_LOCALES = ["en", "fr", "de", "es", "it", "nl", "pl"] as const;
+export const SUPPORTED_LOCALES = ["en", "fr", "de", "es", "it", "nl", "pl", "ar", "fa"] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 
 export const LOCALE_NAMES: Record<Locale, string> = {
@@ -9,7 +9,11 @@ export const LOCALE_NAMES: Record<Locale, string> = {
   it: "Italiano",
   nl: "Nederlands",
   pl: "Polski",
+  ar: "العربية",
+  fa: "فارسی",
 };
+
+export const RTL_LOCALES = new Set<Locale>(["ar", "fa"]);
 
 export function isLocale(val: string): val is Locale {
   return SUPPORTED_LOCALES.includes(val as Locale);

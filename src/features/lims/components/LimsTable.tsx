@@ -22,7 +22,7 @@ export function LimsTable<T extends { id: number }>({
 }: LimsTableProps<T>) {
   return (
     <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
-      <table className="w-full text-left text-sm">
+      <table className="w-full text-start text-sm">
         <thead className="border-b bg-slate-50">
           <tr>
             {columns.map((col) => (

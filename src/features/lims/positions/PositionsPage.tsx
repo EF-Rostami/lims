@@ -12,6 +12,7 @@ import { LimsPageLayout } from "@/features/lims/components/LimsPageLayout";
 import { LimsTable } from "@/features/lims/components/LimsTable";
 import { ExcelButtons } from "@/components/ExcelButtons";
 import { usePositions, useCreatePosition, useUpdatePosition, useDeletePosition } from "./positions.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import { positionsApi } from "./positions.api";
 import { useDepartments } from "@/features/lims/departments/departments.queries";
 import { departmentsApi } from "@/features/lims/departments/departments.api";
@@ -27,6 +28,7 @@ const emptyCreate = (): PositionCreate => ({
 });
 
 export function PositionsPage() {
+  const t = useT("positions");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<PositionRead | null>(null);
   const [form, setForm] = useState<PositionCreate>(emptyCreate());
@@ -70,9 +72,9 @@ export function PositionsPage() {
 
   return (
     <LimsPageLayout
-      title="Positions"
-      description="Job titles and reporting structure"
-      actionLabel="New Position"
+      title={t("title")}
+      description={t("subtitle")}
+      actionLabel={t("addPosition")}
       onAction={openCreate}
       headerExtra={
         <ExcelButtons
@@ -99,10 +101,10 @@ export function PositionsPage() {
       <LimsTable
         data={positions}
         isLoading={isLoading}
-        emptyMessage="No positions configured."
+        emptyMessage={t("noPositions")}
         columns={[
           { header: "Title", render: (p) => <span className="font-medium">{p.title}</span> },
-          { header: "Department", render: (p) => <span className="text-slate-600 text-sm">{deptName(p.department_id)}</span> },
+          { header: t("department"), render: (p) => <span className="text-slate-600 text-sm">{deptName(p.department_id)}</span> },
           { header: "Reports To", render: (p) => <span className="text-slate-500 text-sm">{posTitle(p.reports_to_position_id)}</span> },
           {
             header: "Status",

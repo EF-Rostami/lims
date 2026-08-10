@@ -19,6 +19,7 @@ import {
   useCoaData, useCreateReport, useCreateTemplate, useDeleteTemplate,
   useIssueReport, useReports, useTemplates, useUpdateTemplate,
 } from "./reports.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import type { CoaData, CoaResultRow, CustomSection, ReportTemplate, TemplateCreate } from "./reports.api";
 
 // ── Result column definitions ─────────────────────────────────────────────────
@@ -942,6 +943,7 @@ function ReportsTab() {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function ReportsPage() {
+  const t = useT("reports");
   const [tab, setTab] = useState<"reports" | "templates">("reports");
   const [reportOpen, setReportOpen] = useState(false);
 
@@ -961,9 +963,9 @@ export function ReportsPage() {
 
   return (
     <LimsPageLayout
-      title="Reports"
-      description="Generate and issue Certificates of Analysis"
-      actionLabel={tab === "reports" ? "New Report" : undefined}
+      title={t("title")}
+      description={t("subtitle")}
+      actionLabel={tab === "reports" ? t("newReport") : undefined}
       onAction={tab === "reports" ? () => { setForm(emptyForm()); setReportOpen(true); } : undefined}
     >
       <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
@@ -976,22 +978,22 @@ export function ReportsPage() {
           <LimsTable
             data={reports}
             isLoading={isLoading}
-            emptyMessage="No reports yet."
+            emptyMessage={t("noReports")}
             columns={[
               {
-                header: "Report #",
+                header: t("reportNumber"),
                 render: (r) => <span className="font-mono text-sm font-medium">{r.report_number}</span>,
               },
               {
-                header: "Title",
+                header: t("reportTitle"),
                 render: (r) => <span className="font-medium">{r.title}</span>,
               },
               {
-                header: "Order",
+                header: t("order"),
                 render: (r) => <span className="text-slate-500">{r.order_id ? `#${r.order_id}` : "—"}</span>,
               },
               {
-                header: "Template",
+                header: t("template"),
                 render: (r) => {
                   const tmpl = templates.find((t) => t.id === (r as typeof r & { template_id?: number }).template_id);
                   return <span className="text-slate-500 text-sm">{tmpl?.name ?? "—"}</span>;

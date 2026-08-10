@@ -8,9 +8,11 @@ import { Search } from "lucide-react";
 import { LimsPageLayout } from "@/features/lims/components/LimsPageLayout";
 import { LimsTable } from "@/features/lims/components/LimsTable";
 import { useAuditLogs } from "./audit-logs.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import type { AuditLogEntry, ListAuditLogsParams } from "./audit-logs.api";
 
 export function AuditLogsPage() {
+  const t = useT("auditLogs");
   const [filters, setFilters] = useState<ListAuditLogsParams>({ page: 1, page_size: 50 });
   const [draft, setDraft] = useState({ entity_type: "", action: "" });
 
@@ -26,11 +28,11 @@ export function AuditLogsPage() {
     }));
 
   return (
-    <LimsPageLayout title="Audit Log" description="Immutable record of all system actions">
+    <LimsPageLayout title={t("title")} description={t("subtitle")}>
       {/* Filter bar */}
       <div className="flex flex-wrap items-end gap-3 rounded-lg border bg-white p-4 shadow-sm">
         <div className="space-y-1 min-w-40">
-          <Label className="text-xs">Entity Type</Label>
+          <Label className="text-xs">{t("entityType")}</Label>
           <Input
             placeholder="e.g. sample"
             value={draft.entity_type}
@@ -38,7 +40,7 @@ export function AuditLogsPage() {
           />
         </div>
         <div className="space-y-1 min-w-40">
-          <Label className="text-xs">Action</Label>
+          <Label className="text-xs">{t("action")}</Label>
           <Input
             placeholder="e.g. create"
             value={draft.action}
@@ -56,13 +58,13 @@ export function AuditLogsPage() {
       <LimsTable
         data={logs}
         isLoading={isLoading}
-        emptyMessage="No audit log entries match your filters."
+        emptyMessage={t("noEntries")}
         columns={[
-          { header: "Time", render: (l) => <span className="text-slate-500 text-xs whitespace-nowrap">{new Date(l.performed_at).toLocaleString()}</span> },
-          { header: "Entity", render: (l) => <span className="font-mono text-xs">{l.entity_type ?? "—"} {l.entity_id ? `#${l.entity_id}` : ""}</span> },
-          { header: "Action", render: (l) => <span className="font-medium text-sm">{l.action}</span> },
+          { header: t("time"), render: (l) => <span className="text-slate-500 text-xs whitespace-nowrap">{new Date(l.performed_at).toLocaleString()}</span> },
+          { header: t("entity"), render: (l) => <span className="font-mono text-xs">{l.entity_type ?? "—"} {l.entity_id ? `#${l.entity_id}` : ""}</span> },
+          { header: t("action"), render: (l) => <span className="font-medium text-sm">{l.action}</span> },
           {
-            header: "User",
+            header: t("user"),
             render: (l) => l.user_email ? (
               <span className="text-xs text-slate-600">{l.user_email}</span>
             ) : (

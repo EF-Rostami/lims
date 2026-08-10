@@ -181,9 +181,9 @@ export function Sidebar() {
 
         <aside
           className={cn(
-            "w-64 border-r flex flex-col overflow-y-auto",
-            "fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out",
-            isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full",
+            "w-64 border-e flex flex-col overflow-y-auto",
+            "fixed inset-y-0 inset-s-0 z-50 transition-transform duration-300 ease-in-out",
+            isOpen ? "translate-x-0 shadow-2xl" : "ltr:-translate-x-full rtl:translate-x-full",
             "md:static md:inset-auto md:translate-x-0 md:shadow-none md:z-auto md:h-screen",
             hasBg ? "" : "bg-card",
           )}
@@ -203,7 +203,7 @@ export function Sidebar() {
                   : "text-muted-foreground hover:text-foreground hover:bg-muted",
               )}
             >
-              <ArrowLeft size={13} />
+              <ArrowLeft size={13} className="rtl:rotate-180" />
               {ts("allProjects")}
             </Link>
           </div>
@@ -300,9 +300,9 @@ export function Sidebar() {
 
       <aside
         className={cn(
-          "w-64 border-r flex flex-col overflow-y-auto",
-          "fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out",
-          isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full",
+          "w-64 border-e flex flex-col overflow-y-auto",
+          "fixed inset-y-0 inset-s-0 z-50 transition-transform duration-300 ease-in-out",
+          isOpen ? "translate-x-0 shadow-2xl" : "ltr:-translate-x-full rtl:translate-x-full",
           "md:static md:inset-auto md:translate-x-0 md:shadow-none md:z-auto md:h-screen",
           hasBg ? "" : "bg-card",
         )}

@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { LimsPageLayout } from "@/features/lims/components/LimsPageLayout";
 import { LimsTable } from "@/features/lims/components/LimsTable";
 import { useSignatures, useCreateSignature } from "./signatures.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import type { ListSignaturesParams, SignatureCreate, SignatureContext } from "./signatures.api";
 
 const ENTITY_TYPES = ["result", "report", "sample", "order", "finding"];
@@ -23,6 +24,7 @@ const emptySignForm = (): SignatureCreate => ({
 });
 
 export function SignaturesPage() {
+  const t = useT("signatures");
   const [query, setQuery] = useState<ListSignaturesParams | null>(null);
   const [draft, setDraft] = useState({ entity_type: "", entity_id: "" });
   const [signOpen, setSignOpen] = useState(false);
@@ -48,9 +50,9 @@ export function SignaturesPage() {
 
   return (
     <LimsPageLayout
-      title="Signatures"
-      description="Electronic signatures for results, reports and other records"
-      actionLabel="Add Signature"
+      title={t("title")}
+      description={t("subtitle")}
+      actionLabel={t("addSignature")}
       onAction={() => { setSignForm(emptySignForm()); setSignOpen(true); }}
     >
       {/* Query bar */}
@@ -83,13 +85,13 @@ export function SignaturesPage() {
         <LimsTable
           data={signatures}
           isLoading={isLoading}
-          emptyMessage="No signatures for this record."
+          emptyMessage={t("noSignatures")}
           columns={[
-            { header: "Context", render: (s) => <span className="font-medium text-sm">{s.context}</span> },
-            { header: "Meaning", render: (s) => <span className="text-slate-600">{s.meaning}</span> },
-            { header: "User", render: (s) => <span className="text-slate-500 text-xs">User #{s.user_id}</span> },
-            { header: "Signed At", render: (s) => <span className="text-slate-500 text-xs whitespace-nowrap">{new Date(s.signed_at).toLocaleString()}</span> },
-            { header: "IP", render: (s) => <span className="font-mono text-xs text-slate-400">{s.ip_address ?? "—"}</span> },
+            { header: t("context"), render: (s) => <span className="font-medium text-sm">{s.context}</span> },
+            { header: t("meaning"), render: (s) => <span className="text-slate-600">{s.meaning}</span> },
+            { header: t("user"), render: (s) => <span className="text-slate-500 text-xs">User #{s.user_id}</span> },
+            { header: t("signedAt"), render: (s) => <span className="text-slate-500 text-xs whitespace-nowrap">{new Date(s.signed_at).toLocaleString()}</span> },
+            { header: t("ip"), render: (s) => <span className="font-mono text-xs text-slate-400">{s.ip_address ?? "—"}</span> },
           ]}
         />
       ) : (

@@ -1,5 +1,5 @@
 import type { Locale } from "./types";
-export { SUPPORTED_LOCALES, LOCALE_NAMES, isLocale } from "./types";
+export { SUPPORTED_LOCALES, LOCALE_NAMES, RTL_LOCALES, isLocale } from "./types";
 export type { Locale };
 
 import en from "./messages/en.json";
@@ -9,5 +9,7 @@ import es from "./messages/es.json";
 import it from "./messages/it.json";
 import nl from "./messages/nl.json";
 import pl from "./messages/pl.json";
+import ar from "./messages/ar.json";
+import fa from "./messages/fa.json";
 
-export const DICTS: Record<Locale, typeof en> = { en, fr, de, es, it, nl, pl };
+export const DICTS: Record<Locale, typeof en> = { en, fr, de, es, it, nl, pl, ar, fa };

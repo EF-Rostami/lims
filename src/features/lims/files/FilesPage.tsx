@@ -10,6 +10,7 @@ import { LimsPageLayout } from "@/features/lims/components/LimsPageLayout";
 import { LimsTable } from "@/features/lims/components/LimsTable";
 import { LimsStatusBadge } from "@/features/lims/components/LimsStatusBadge";
 import { useFiles, useUploadFile, useDeleteFile } from "./files.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import type { LabFileListItem, FileCategory, UploadFileParams } from "./files.api";
 
 const CATEGORIES: FileCategory[] = [
@@ -22,6 +23,7 @@ const CATEGORIES: FileCategory[] = [
 ];
 
 export function FilesPage() {
+  const t = useT("files");
   const [open, setOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [category, setCategory] = useState<FileCategory>("OTHER");
@@ -50,20 +52,20 @@ export function FilesPage() {
 
   return (
     <LimsPageLayout
-      title="Files"
-      description="Documents, attachments, and reports"
-      actionLabel="Upload File"
+      title={t("title")}
+      description={t("subtitle")}
+      actionLabel={t("uploadFile")}
       onAction={() => setOpen(true)}
     >
       <LimsTable
         data={files}
         isLoading={isLoading}
-        emptyMessage="No files uploaded yet."
+        emptyMessage={t("noFiles")}
         columns={[
-          { header: "Filename", render: (f) => <span className="font-medium">{f.original_filename}</span> },
-          { header: "Category", render: (f) => <LimsStatusBadge status={f.category} /> },
-          { header: "Size", render: (f) => <span className="text-slate-500 text-xs">{formatSize(f.file_size)}</span> },
-          { header: "Entity", render: (f) => <span className="text-slate-500 text-xs">{f.related_entity_type ?? "—"} {f.related_entity_id ? `#${f.related_entity_id}` : ""}</span> },
+          { header: t("filename"), render: (f) => <span className="font-medium">{f.original_filename}</span> },
+          { header: t("category"), render: (f) => <LimsStatusBadge status={f.category} /> },
+          { header: t("size"), render: (f) => <span className="text-slate-500 text-xs">{formatSize(f.file_size)}</span> },
+          { header: t("entity"), render: (f) => <span className="text-slate-500 text-xs">{f.related_entity_type ?? "—"} {f.related_entity_id ? `#${f.related_entity_id}` : ""}</span> },
           {
             header: "",
             className: "w-20 text-right",

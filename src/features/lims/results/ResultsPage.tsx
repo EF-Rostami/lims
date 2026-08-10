@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { LimsPageLayout } from "@/features/lims/components/LimsPageLayout";
 import { useResults, useEnterResult, useValidateResult, useApproveResult, useRejectResult } from "./results.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import { useInstruments } from "@/features/lims/instruments/instruments.queries";
 import type { ResultRead, ResultEnter, ResultFlag, ResultStatus } from "./results.api";
 
@@ -321,6 +322,7 @@ const STATUS_FILTERS: { value: ResultStatus | ""; label: string }[] = [
 ];
 
 export function ResultsPage() {
+  const t = useT("results");
   const [statusFilter, setStatusFilter] = useState<ResultStatus | "">("");
   const [instrumentFilter, setInstrumentFilter] = useState<number | "">("");
   const [enterTarget, setEnterTarget] = useState<ResultRead | null>(null);
@@ -342,8 +344,8 @@ export function ResultsPage() {
 
   return (
     <LimsPageLayout
-      title="Test Results"
-      description="Enter, validate, and approve laboratory results"
+      title={t("title")}
+      description={t("subtitle")}
     >
       {/* Filter bar */}
       <div className="flex flex-wrap items-center gap-2 mb-4">

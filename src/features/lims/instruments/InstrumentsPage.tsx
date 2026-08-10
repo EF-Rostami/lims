@@ -24,6 +24,7 @@ import {
   useDeleteQualification, useAddQualificationItem, useUpdateQualificationItem,
   useDeleteQualificationItem,
 } from "./instruments.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import { instrumentsApi } from "./instruments.api";
 import type {
   InstrumentRead, InstrumentCreate, MaintenanceLogCreate,
@@ -1185,6 +1186,7 @@ const TABS = ["Details", "Calibration", "Int. Checks", "IQ/OQ/PQ", "Results"] as
 type Tab = (typeof TABS)[number];
 
 export function InstrumentsPage() {
+  const t = useT("instruments");
   const [selected, setSelected] = useState<InstrumentRead | null>(null);
   const [tab, setTab] = useState<Tab>("Details");
   const [formOpen, setFormOpen] = useState(false);
@@ -1215,7 +1217,7 @@ export function InstrumentsPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {!selected ? (
           <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
-            Select an instrument from the list to view details.
+            {t("selectDetails")}
           </div>
         ) : (
           <>

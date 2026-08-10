@@ -19,6 +19,7 @@ import {
   useSlaStatus, useSlaRules, useCreateSlaRule, useUpdateSlaRule, useDeleteSlaRule,
   useUnreadCount,
 } from "./notifications.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import type {
   Notification, NotificationType, SlaRule, SlaRuleCreate, SlaEntityType,
 } from "./notifications.api";
@@ -558,12 +559,13 @@ function SlaRulesTab() {
 // ── Page root ─────────────────────────────────────────────────────────────────
 
 export function NotificationsPage() {
+  const t = useT("notifications");
   const { data: unread } = useUnreadCount();
 
   return (
     <LimsPageLayout
-      title="Notifications"
-      description="In-app alerts, task assignments, and SLA deadline tracking"
+      title={t("title")}
+      description={t("subtitle")}
     >
       <div className="space-y-4">
         <SlaStatusPanel />

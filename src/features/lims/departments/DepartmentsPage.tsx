@@ -11,6 +11,7 @@ import { LimsPageLayout } from "@/features/lims/components/LimsPageLayout";
 import { LimsTable } from "@/features/lims/components/LimsTable";
 import { ExcelButtons } from "@/components/ExcelButtons";
 import { useDepartments, useCreateDepartment, useUpdateDepartment, useDeleteDepartment } from "./departments.queries";
+import { useT } from "@/i18n/LocaleProvider";
 import { departmentsApi } from "./departments.api";
 import type { DepartmentRead, DepartmentCreate, DepartmentUpdate } from "./departments.api";
 import { limsApi } from "@/lib/lims-api";
@@ -18,6 +19,7 @@ import { limsApi } from "@/lib/lims-api";
 const emptyCreate = (): DepartmentCreate => ({ name: "", code: "", parent_id: null });
 
 export function DepartmentsPage() {
+  const t = useT("departments");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<DepartmentRead | null>(null);
   const [form, setForm] = useState<DepartmentCreate>(emptyCreate());
@@ -53,9 +55,9 @@ export function DepartmentsPage() {
 
   return (
     <LimsPageLayout
-      title="Departments"
-      description="Organisational units within the laboratory"
-      actionLabel="New Department"
+      title={t("title")}
+      description={t("subtitle")}
+      actionLabel={t("addDepartment")}
       onAction={openCreate}
       headerExtra={
         <ExcelButtons
@@ -77,7 +79,7 @@ export function DepartmentsPage() {
       <LimsTable
         data={departments}
         isLoading={isLoading}
-        emptyMessage="No departments configured."
+        emptyMessage={t("noDepartments")}
         columns={[
           { header: "Name", render: (d) => <span className="font-medium">{d.name}</span> },
           { header: "Code", render: (d) => <span className="font-mono text-sm">{d.code}</span> },
