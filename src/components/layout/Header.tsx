@@ -14,12 +14,15 @@ import {
 import { useLimsAuthStore } from "@/features/lims-auth/lims-auth.store";
 import { PermissionGate } from "../protection/PermissionGate";
 import { NotificationBell } from "./NotificationBell";
+import { LanguageSelector } from "@/components/i18n/LanguageSelector";
+import { useT } from "@/i18n/LocaleProvider";
 
 export function Header() {
   const router = useRouter();
   const user = useLimsAuthStore((state) => state.user);
   const logout = useLimsAuthStore((state) => state.logout);
   const toggle = useSidebarStore((s) => s.toggle);
+  const t = useT("header");
 
   const handleLogout = async () => {
     try {
@@ -44,20 +47,22 @@ export function Header() {
           <Menu className="h-5 w-5" />
         </button>
         <span className="text-muted-foreground hidden sm:block">
-          Welcome back, {user?.display_name || user?.username || "User"}
+          {t("welcomeBack", { name: user?.display_name || user?.username || "User" })}
         </span>
       </div>
 
       <div className="flex items-center gap-4">
         <PermissionGate permissions={["SAMPLE_CREATE"]}>
           <button className="bg-primary text-primary-foreground px-4 py-1.5 rounded-md text-sm">
-            + New Sample
+            {t("newSample")}
           </button>
         </PermissionGate>
 
         <NotificationBell />
 
-        <div className="ml-2 border-l pl-4">
+        <LanguageSelector />
+
+        <div className="border-l pl-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-2 rounded-full hover:bg-muted px-2 py-1 transition-colors">
@@ -74,13 +79,13 @@ export function Header() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52">
               <DropdownMenuLabel className="font-normal">
-                <p className="text-sm font-medium">{user?.display_name || "Account"}</p>
+                <p className="text-sm font-medium">{user?.display_name || t("account")}</p>
                 <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push("/lims/account")}>
                 <Settings className="h-4 w-4 mr-2" />
-                Account Settings
+                {t("accountSettings")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -88,7 +93,7 @@ export function Header() {
                 className="text-destructive focus:text-destructive"
               >
                 <LogOut className="h-4 w-4 mr-2" />
-                Sign out
+                {t("signOut")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

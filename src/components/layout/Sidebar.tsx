@@ -11,22 +11,14 @@ import { useLimsAuthStore } from "@/features/lims-auth/lims-auth.store";
 import {
   sidebarConfig,
   consultantSidebarConfig,
-  consultantSectionLabels,
   FULL_LIMS_ROLES,
-  NavItem,
+  type NavItem,
 } from "@/config/navigation";
 import { useBranding } from "@/features/lims/branding/BrandingProvider";
 import { useProjectContextStore } from "@/features/lims/consultancy/project-context.store";
 import { useSidebarStore } from "./sidebar.store";
+import { useT } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
-
-const SECTION_LABELS: Record<string, string> = {
-  main: "",
-  qms: "QMS Setup",
-  accreditation: "Accreditation",
-  lims: "Laboratory",
-  admin: "Administration",
-};
 
 function groupBySections(items: NavItem[]) {
   const sections: Record<string, NavItem[]> = {};
@@ -78,6 +70,8 @@ export function Sidebar() {
   const user = useLimsAuthStore((state) => state.user);
   const { companyName, logoUrl, sidebarBgHex } = useBranding();
   const { id: ctxProjectId, name: ctxProjectName } = useProjectContextStore();
+  const tn = useT("nav");
+  const ts = useT("sidebar");
 
   // Close drawer whenever the route changes (e.g. browser back)
   useEffect(() => {
@@ -105,6 +99,19 @@ export function Sidebar() {
 
   const hasBg = !!sidebarBgHex;
 
+  // Section ID → translation key mapping
+  const sectionLabel = (sec: string): string => {
+    const map: Record<string, string> = {
+      qms: "sectionQms",
+      accreditation: "sectionAccreditation",
+      lims: "sectionLims",
+      admin: "sectionAdmin",
+      consultant: "sectionConsultant",
+      lab_entities: "sectionLabEntities",
+    };
+    return map[sec] ? ts(map[sec]) : "";
+  };
+
   // ── Shared logo header ─────────────────────────────────────────────────────
   const header = (
     <div className={cn("p-4 border-b shrink-0 flex items-center gap-3", hasBg ? "border-white/10" : "")}>
@@ -128,32 +135,31 @@ export function Sidebar() {
     const projectItems = [
       {
         href: base,
-        label: "Overview",
+        label: tn("Overview"),
         icon: LayoutDashboard,
-        // exact match — sub-routes should highlight their own item
         isActive: pathname === base,
       },
       {
         href: `${base}/assessment`,
-        label: "Gap Assessment",
+        label: tn("Gap Assessment"),
         icon: BarChart2,
         isActive: pathname.startsWith(`${base}/assessment`),
       },
       {
         href: `${base}/tasks`,
-        label: "Tasks",
+        label: tn("Tasks"),
         icon: ClipboardList,
         isActive: pathname.startsWith(`${base}/tasks`),
       },
       {
         href: `${base}/meetings`,
-        label: "Meetings",
+        label: tn("Meetings"),
         icon: CalendarDays,
         isActive: pathname.startsWith(`${base}/meetings`),
       },
       {
         href: `${base}/go-live`,
-        label: "Go Live",
+        label: tn("Go Live"),
         icon: Rocket,
         isActive: pathname.startsWith(`${base}/go-live`),
       },
@@ -176,10 +182,8 @@ export function Sidebar() {
         <aside
           className={cn(
             "w-64 border-r flex flex-col overflow-y-auto",
-            // mobile: fixed off-canvas drawer
             "fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out",
             isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full",
-            // desktop: static in flow
             "md:static md:inset-auto md:translate-x-0 md:shadow-none md:z-auto md:h-screen",
             hasBg ? "" : "bg-card",
           )}
@@ -200,7 +204,7 @@ export function Sidebar() {
               )}
             >
               <ArrowLeft size={13} />
-              All Projects
+              {ts("allProjects")}
             </Link>
           </div>
 
@@ -238,7 +242,7 @@ export function Sidebar() {
                   hasBg ? "text-white/40" : "text-muted-foreground",
                 )}
               >
-                {consultantSectionLabels.lab_entities}
+                {ts("sectionLabEntities")}
               </p>
               <div className="space-y-0.5">
                 {labItems.map((item) => {
@@ -249,7 +253,7 @@ export function Sidebar() {
                     <NavLink
                       key={item.href}
                       href={item.href}
-                      label={item.title}
+                      label={tn(item.title)}
                       icon={item.icon}
                       isActive={isActive}
                       hasBg={hasBg}
@@ -267,7 +271,6 @@ export function Sidebar() {
 
   // ── Standard sidebar (consultant top-level or full LIMS user) ──────────────
   const navConfig = isConsultantOnly ? consultantSidebarConfig : sidebarConfig;
-  const sectionLabels = isConsultantOnly ? consultantSectionLabels : SECTION_LABELS;
   const sectionOrder = isConsultantOnly
     ? ["consultant", "lab_entities"]
     : ["main", "qms", "accreditation", "lims", "admin"];
@@ -298,10 +301,8 @@ export function Sidebar() {
       <aside
         className={cn(
           "w-64 border-r flex flex-col overflow-y-auto",
-          // mobile: fixed off-canvas drawer
           "fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out",
           isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full",
-          // desktop: static in flow
           "md:static md:inset-auto md:translate-x-0 md:shadow-none md:z-auto md:h-screen",
           hasBg ? "" : "bg-card",
         )}
@@ -313,7 +314,7 @@ export function Sidebar() {
           {sectionOrder.map((sec) => {
             const items = sections[sec];
             if (!items?.length) return null;
-            const label = sectionLabels[sec] ?? "";
+            const label = sectionLabel(sec);
             return (
               <div key={sec}>
                 {label && (
@@ -335,7 +336,7 @@ export function Sidebar() {
                       <NavLink
                         key={item.href}
                         href={item.href}
-                        label={item.title}
+                        label={tn(item.title)}
                         icon={item.icon}
                         isActive={isActive}
                         hasBg={hasBg}
