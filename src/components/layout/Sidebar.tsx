@@ -17,7 +17,8 @@ import {
 import { useBranding } from "@/features/lims/branding/BrandingProvider";
 import { useProjectContextStore } from "@/features/lims/consultancy/project-context.store";
 import { useSidebarStore } from "./sidebar.store";
-import { useT } from "@/i18n/LocaleProvider";
+import { useT, useLocale } from "@/i18n/LocaleProvider";
+import { RTL_LOCALES } from "@/i18n/dictionaries";
 import { cn } from "@/lib/utils";
 
 function groupBySections(items: NavItem[]) {
@@ -70,6 +71,8 @@ export function Sidebar() {
   const user = useLimsAuthStore((state) => state.user);
   const { companyName, logoUrl, sidebarBgHex } = useBranding();
   const { id: ctxProjectId, name: ctxProjectName } = useProjectContextStore();
+  const { locale } = useLocale();
+  const isRTL = RTL_LOCALES.has(locale);
   const tn = useT("nav");
   const ts = useT("sidebar");
 
@@ -182,8 +185,9 @@ export function Sidebar() {
         <aside
           className={cn(
             "w-64 border-e flex flex-col overflow-y-auto",
-            "fixed inset-y-0 inset-s-0 z-50 transition-transform duration-300 ease-in-out",
-            isOpen ? "translate-x-0 shadow-2xl" : "ltr:-translate-x-full rtl:translate-x-full",
+            "fixed inset-y-0 z-50 transition-transform duration-300 ease-in-out",
+            isRTL ? "right-0" : "left-0",
+            isOpen ? "translate-x-0 shadow-2xl" : (isRTL ? "translate-x-full" : "-translate-x-full"),
             "md:static md:inset-auto md:translate-x-0 md:shadow-none md:z-auto md:h-screen",
             hasBg ? "" : "bg-card",
           )}
@@ -301,8 +305,9 @@ export function Sidebar() {
       <aside
         className={cn(
           "w-64 border-e flex flex-col overflow-y-auto",
-          "fixed inset-y-0 inset-s-0 z-50 transition-transform duration-300 ease-in-out",
-          isOpen ? "translate-x-0 shadow-2xl" : "ltr:-translate-x-full rtl:translate-x-full",
+          "fixed inset-y-0 z-50 transition-transform duration-300 ease-in-out",
+          isRTL ? "right-0" : "left-0",
+          isOpen ? "translate-x-0 shadow-2xl" : (isRTL ? "translate-x-full" : "-translate-x-full"),
           "md:static md:inset-auto md:translate-x-0 md:shadow-none md:z-auto md:h-screen",
           hasBg ? "" : "bg-card",
         )}
