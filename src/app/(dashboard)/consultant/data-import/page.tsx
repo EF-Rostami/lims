@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import * as XLSX from "xlsx";
 import {
   Download, Upload, Link2, Plus, Trash2, Copy, CheckCircle2,
   Loader2, AlertTriangle, Clock, FileSpreadsheet, X, ChevronDown,
@@ -60,7 +59,8 @@ const SHEETS = [
   },
 ];
 
-function generateTemplate() {
+async function generateTemplate() {
+  const XLSX = await import("xlsx");
   const wb = XLSX.utils.book_new();
 
   // Data sheets
@@ -96,7 +96,8 @@ function generateTemplate() {
 
 type ParsedData = IntakeStagedData & { _raw: Record<string, unknown[][]> };
 
-function parseExcel(file: File): Promise<ParsedData> {
+async function parseExcel(file: File): Promise<ParsedData> {
+  const XLSX = await import("xlsx");
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {

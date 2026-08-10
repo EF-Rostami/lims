@@ -35,7 +35,7 @@ export function ExcelButtons({ onExport, exportFilename, onImport }: ExcelButton
     setExporting(true);
     try {
       const rows = await onExport();
-      exportToExcel(rows, exportFilename);
+      await exportToExcel(rows, exportFilename);
     } finally {
       setExporting(false);
     }

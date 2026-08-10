@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -16,6 +17,7 @@ import {
 } from "@/config/navigation";
 import { useBranding } from "@/features/lims/branding/BrandingProvider";
 import { useProjectContextStore } from "@/features/lims/consultancy/project-context.store";
+import { useSidebarStore } from "./sidebar.store";
 import { cn } from "@/lib/utils";
 
 const SECTION_LABELS: Record<string, string> = {
@@ -50,9 +52,11 @@ function NavLink({
   isActive: boolean;
   hasBg: boolean;
 }) {
+  const close = useSidebarStore((s) => s.close);
   return (
     <Link
       href={href}
+      onClick={close}
       className={cn(
         "flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm",
         isActive
@@ -70,9 +74,15 @@ function NavLink({
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { isOpen, close } = useSidebarStore();
   const user = useLimsAuthStore((state) => state.user);
   const { companyName, logoUrl, sidebarBgHex } = useBranding();
   const { id: ctxProjectId, name: ctxProjectName } = useProjectContextStore();
+
+  // Close drawer whenever the route changes (e.g. browser back)
+  useEffect(() => {
+    close();
+  }, [pathname]);
 
   const roles: string[] = user?.roles ?? [];
 
@@ -153,10 +163,28 @@ export function Sidebar() {
     const labItems = consultantSidebarConfig.filter((i) => i.section === "lab_entities");
 
     return (
-      <aside
-        className={cn("w-64 border-r h-screen flex flex-col overflow-y-auto", hasBg ? "" : "bg-card")}
-        style={hasBg ? { backgroundColor: sidebarBgHex! } : undefined}
-      >
+      <>
+        {/* Mobile overlay */}
+        <div
+          className={cn(
+            "fixed inset-0 z-40 bg-black/50 md:hidden transition-opacity duration-300",
+            isOpen ? "opacity-100" : "opacity-0 pointer-events-none",
+          )}
+          onClick={close}
+        />
+
+        <aside
+          className={cn(
+            "w-64 border-r flex flex-col overflow-y-auto",
+            // mobile: fixed off-canvas drawer
+            "fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out",
+            isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full",
+            // desktop: static in flow
+            "md:static md:inset-auto md:translate-x-0 md:shadow-none md:z-auto md:h-screen",
+            hasBg ? "" : "bg-card",
+          )}
+          style={hasBg ? { backgroundColor: sidebarBgHex! } : undefined}
+        >
         {header}
 
         <nav className="flex-1 p-3 space-y-4 overflow-y-auto">
@@ -232,7 +260,8 @@ export function Sidebar() {
             </div>
           )}
         </nav>
-      </aside>
+        </aside>
+      </>
     );
   }
 
@@ -256,50 +285,69 @@ export function Sidebar() {
   const sections = groupBySections(visibleItems);
 
   return (
-    <aside
-      className={cn("w-64 border-r h-screen flex flex-col overflow-y-auto", hasBg ? "" : "bg-card")}
-      style={hasBg ? { backgroundColor: sidebarBgHex! } : undefined}
-    >
-      {header}
+    <>
+      {/* Mobile overlay */}
+      <div
+        className={cn(
+          "fixed inset-0 z-40 bg-black/50 md:hidden transition-opacity duration-300",
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none",
+        )}
+        onClick={close}
+      />
 
-      <nav className="flex-1 p-3 space-y-5 overflow-y-auto">
-        {sectionOrder.map((sec) => {
-          const items = sections[sec];
-          if (!items?.length) return null;
-          const label = sectionLabels[sec] ?? "";
-          return (
-            <div key={sec}>
-              {label && (
-                <p
-                  className={cn(
-                    "text-[10px] font-black uppercase tracking-widest px-3 mb-1.5",
-                    hasBg ? "text-white/40" : "text-muted-foreground",
-                  )}
-                >
-                  {label}
-                </p>
-              )}
-              <div className="space-y-0.5">
-                {items.map((item) => {
-                  const isActive =
-                    pathname === item.href ||
-                    (item.href !== "/dashboard" && pathname.startsWith(item.href));
-                  return (
-                    <NavLink
-                      key={item.href}
-                      href={item.href}
-                      label={item.title}
-                      icon={item.icon}
-                      isActive={isActive}
-                      hasBg={hasBg}
-                    />
-                  );
-                })}
+      <aside
+        className={cn(
+          "w-64 border-r flex flex-col overflow-y-auto",
+          // mobile: fixed off-canvas drawer
+          "fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out",
+          isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full",
+          // desktop: static in flow
+          "md:static md:inset-auto md:translate-x-0 md:shadow-none md:z-auto md:h-screen",
+          hasBg ? "" : "bg-card",
+        )}
+        style={hasBg ? { backgroundColor: sidebarBgHex! } : undefined}
+      >
+        {header}
+
+        <nav className="flex-1 p-3 space-y-5 overflow-y-auto">
+          {sectionOrder.map((sec) => {
+            const items = sections[sec];
+            if (!items?.length) return null;
+            const label = sectionLabels[sec] ?? "";
+            return (
+              <div key={sec}>
+                {label && (
+                  <p
+                    className={cn(
+                      "text-[10px] font-black uppercase tracking-widest px-3 mb-1.5",
+                      hasBg ? "text-white/40" : "text-muted-foreground",
+                    )}
+                  >
+                    {label}
+                  </p>
+                )}
+                <div className="space-y-0.5">
+                  {items.map((item) => {
+                    const isActive =
+                      pathname === item.href ||
+                      (item.href !== "/dashboard" && pathname.startsWith(item.href));
+                    return (
+                      <NavLink
+                        key={item.href}
+                        href={item.href}
+                        label={item.title}
+                        icon={item.icon}
+                        isActive={isActive}
+                        hasBg={hasBg}
+                      />
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </nav>
-    </aside>
+            );
+          })}
+        </nav>
+      </aside>
+    </>
   );
 }

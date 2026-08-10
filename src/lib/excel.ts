@@ -1,13 +1,13 @@
-import * as XLSX from "xlsx";
-
-export function exportToExcel(rows: Record<string, unknown>[], filename: string): void {
+export async function exportToExcel(rows: Record<string, unknown>[], filename: string): Promise<void> {
+  const XLSX = await import("xlsx");
   const ws = XLSX.utils.json_to_sheet(rows);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
   XLSX.writeFile(wb, filename.endsWith(".xlsx") ? filename : `${filename}.xlsx`);
 }
 
-export function parseExcelFile(file: File): Promise<Record<string, unknown>[]> {
+export async function parseExcelFile(file: File): Promise<Record<string, unknown>[]> {
+  const XLSX = await import("xlsx");
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -21,7 +21,7 @@ export function parseExcelFile(file: File): Promise<Record<string, unknown>[]> {
         reject(err);
       }
     };
-    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.onerror = reject;
     reader.readAsArrayBuffer(file);
   });
 }

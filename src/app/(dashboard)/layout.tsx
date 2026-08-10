@@ -1,5 +1,4 @@
-"use client";
-
+import type { ReactNode } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { LimsAuthBootstrap } from "@/features/lims-auth/LimsAuthBootstrap";
@@ -8,7 +7,7 @@ import { BrandingProvider } from "@/features/lims/branding/BrandingProvider";
 export default function LimsLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <LimsAuthBootstrap>

@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { LogOut, UserCircle, Settings } from "lucide-react";
+import { LogOut, Menu, Settings } from "lucide-react";
+import { useSidebarStore } from "./sidebar.store";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +19,7 @@ export function Header() {
   const router = useRouter();
   const user = useLimsAuthStore((state) => state.user);
   const logout = useLimsAuthStore((state) => state.logout);
+  const toggle = useSidebarStore((s) => s.toggle);
 
   const handleLogout = async () => {
     try {
@@ -33,8 +35,15 @@ export function Header() {
 
   return (
     <header className="h-16 border-b bg-background flex items-center justify-between px-6">
-      <div className="flex items-center gap-4">
-        <span className="text-muted-foreground">
+      <div className="flex items-center gap-3">
+        <button
+          className="md:hidden p-1.5 rounded-md hover:bg-muted transition-colors"
+          onClick={toggle}
+          aria-label="Open navigation"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <span className="text-muted-foreground hidden sm:block">
           Welcome back, {user?.display_name || user?.username || "User"}
         </span>
       </div>
