@@ -12,9 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLimsAuthStore } from "@/features/lims-auth/lims-auth.store";
+import { FULL_LIMS_ROLES } from "@/config/navigation";
 import { PermissionGate } from "../protection/PermissionGate";
 import { NotificationBell } from "./NotificationBell";
 import { LanguageSelector } from "@/components/i18n/LanguageSelector";
+import { LabSwitcher } from "./LabSwitcher";
 import { useT } from "@/i18n/LocaleProvider";
 
 export function Header() {
@@ -31,6 +33,11 @@ export function Header() {
       window.location.href = "/login";
     }
   };
+
+  const roles: string[] = user?.roles ?? [];
+  const isConsultantOnly =
+    roles.some((r) => r === "consultant" || r === "lead_auditor") &&
+    !roles.some((r) => FULL_LIMS_ROLES.includes(r as never));
 
   const initials = user?.display_name
     ? user.display_name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
@@ -57,6 +64,8 @@ export function Header() {
             {t("newSample")}
           </button>
         </PermissionGate>
+
+        {isConsultantOnly && <LabSwitcher />}
 
         <NotificationBell />
 

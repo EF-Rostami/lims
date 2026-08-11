@@ -18,6 +18,10 @@ const STATUS_COLORS: Record<string, string> = {
   CANCELLED: "bg-red-100 text-red-600",
 };
 
+function toLabel(str: string): string {
+  return str.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export default function ProjectsPage() {
   const { data: projects = [], isLoading } = useProjects();
   const { data: frameworks = [] } = useFrameworks();
@@ -74,7 +78,7 @@ export default function ProjectsPage() {
                 </p>
               </div>
               <span className={`text-xs px-2 py-0.5 rounded font-medium flex-shrink-0 ${STATUS_COLORS[p.status] ?? "bg-gray-100 text-gray-600"}`}>
-                {p.status.replace(/_/g, " ")}
+                {toLabel(p.status)}
               </span>
             </div>
             {(p.target_go_live || p.actual_go_live) && (

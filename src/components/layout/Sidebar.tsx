@@ -102,14 +102,19 @@ export function Sidebar() {
 
   const hasBg = !!sidebarBgHex;
 
-  // Section ID → translation key mapping
+  // Section ID → label; for consultant-only users the current_lab section shows the actual lab name
   const sectionLabel = (sec: string): string => {
+    if (sec === "current_lab" && isConsultantOnly) return companyName || ts("sectionCurrentLab");
     const map: Record<string, string> = {
+      operations: "sectionOperations",
+      technical: "sectionTechnical",
+      quality: "sectionQuality",
+      system: "sectionSystem",
       qms: "sectionQms",
       accreditation: "sectionAccreditation",
-      lims: "sectionLims",
       admin: "sectionAdmin",
       consultant: "sectionConsultant",
+      current_lab: "sectionCurrentLab",
       lab_entities: "sectionLabEntities",
     };
     return map[sec] ? ts(map[sec]) : "";
@@ -276,8 +281,8 @@ export function Sidebar() {
   // ── Standard sidebar (consultant top-level or full LIMS user) ──────────────
   const navConfig = isConsultantOnly ? consultantSidebarConfig : sidebarConfig;
   const sectionOrder = isConsultantOnly
-    ? ["consultant", "lab_entities"]
-    : ["main", "qms", "accreditation", "lims", "admin"];
+    ? ["consultant", "current_lab", "lab_entities"]
+    : ["main", "operations", "technical", "quality", "system", "qms", "accreditation", "admin"];
 
   const visibleItems = isConsultantOnly
     ? navConfig

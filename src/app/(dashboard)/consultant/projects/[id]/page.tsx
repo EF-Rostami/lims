@@ -13,6 +13,10 @@ const STATUS_COLORS: Record<string, string> = {
   CANCELLED: "bg-red-100 text-red-600",
 };
 
+function toLabel(str: string): string {
+  return str.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const projectId = Number(id);
@@ -38,7 +42,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           <p className="text-sm text-muted-foreground">Framework #{project.framework_id}</p>
         </div>
         <span className={`text-xs px-2.5 py-1 rounded font-medium ${STATUS_COLORS[project.status] ?? "bg-gray-100 text-gray-600"}`}>
-          {project.status.replace(/_/g, " ")}
+          {toLabel(project.status)}
         </span>
       </div>
 
@@ -114,7 +118,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             href={href}
             className="flex items-center gap-4 border rounded-lg p-4 hover:bg-muted transition-colors group"
           >
-            <div className={`flex-shrink-0 ${color}`}>
+            <div className={`shrink-0 ${color}`}>
               <Icon className="h-6 w-6" />
             </div>
             <div className="flex-1 min-w-0">

@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { CalendarDays, ArrowRight } from "lucide-react";
 import { useMeetings } from "@/features/lims/consultancy/meetings.queries";
+import { useProjects } from "@/features/lims/consultancy/consultancy.queries";
+
+function toLabel(str: string): string {
+  return str.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 const TYPE_LABELS: Record<string, string> = {
   KICKOFF: "Kickoff",
@@ -18,6 +23,9 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function AllMeetingsPage() {
   const { data: meetings = [], isLoading } = useMeetings();
+  const { data: projects = [] } = useProjects();
+
+  const projectMap = Object.fromEntries(projects.map((p) => [p.id, p.name]));
 
   const upcoming = meetings.filter((m) => m.status === "PLANNED");
   const completed = meetings.filter((m) => m.status === "COMPLETED");
@@ -49,17 +57,25 @@ export default function AllMeetingsPage() {
                 >
                   <CalendarDays className="h-5 w-5 text-muted-foreground shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
+                    <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
                       <span className="text-muted-foreground font-mono mr-1.5">M{m.sequence_number}</span>
                       {m.title}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {TYPE_LABELS[m.type] ?? m.type} · {new Date(m.scheduled_at).toLocaleDateString()}
+                      {projectMap[m.project_id] ?? `Project #${m.project_id}`}
+                      {" · "}
+                      {TYPE_LABELS[m.type] ?? toLabel(m.type)}
+                      {" · "}
+                      {new Date(m.scheduled_at).toLocaleDateString(undefined, {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                      })}
                       {m.location ? ` · ${m.location}` : ""}
                     </p>
                   </div>
                   <span className={`text-xs px-2 py-0.5 rounded font-medium shrink-0 ${STATUS_COLORS[m.status] ?? ""}`}>
-                    {m.status}
+                    {toLabel(m.status)}
                   </span>
                   <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Link>

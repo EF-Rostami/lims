@@ -52,11 +52,15 @@
   },
   "sidebar": {
     "allProjects": "Alle projecten",
+    "sectionOperations": "Operaties",
+    "sectionTechnical": "Technisch",
+    "sectionQuality": "Kwaliteitssysteem",
+    "sectionSystem": "Systeem",
     "sectionQms": "QMS-inrichting",
     "sectionAccreditation": "Accreditatie",
-    "sectionLims": "Laboratorium",
     "sectionAdmin": "Beheer",
     "sectionConsultant": "Consultancy",
+    "sectionCurrentLab": "Huidig laboratorium",
     "sectionLabEntities": "Lab-entiteiten"
   },
   "nav": {

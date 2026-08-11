@@ -121,7 +121,7 @@ export default function ConsultantPortal() {
             className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-700 transition-all shadow-md"
           >
             <UserCog size={16} />
-            Introduce Consultant
+            Add Consultant User
           </button>
         </div>
       </header>
@@ -196,8 +196,8 @@ export default function ConsultantPortal() {
                 <UserCog size={20} />
               </div>
               <div>
-                <h2 className="font-black text-slate-900">Introduce Consultant</h2>
-                <p className="text-xs text-slate-500">Create a user account with QMS setup privileges</p>
+                <h2 className="font-black text-slate-900">Add Consultant User</h2>
+                <p className="text-xs text-slate-500">Create a lab user account with consultant role</p>
               </div>
             </div>
 

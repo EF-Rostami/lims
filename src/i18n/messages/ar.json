@@ -52,11 +52,15 @@
   },
   "sidebar": {
     "allProjects": "جميع المشاريع",
+    "sectionOperations": "العمليات",
+    "sectionTechnical": "التقني",
+    "sectionQuality": "نظام الجودة",
+    "sectionSystem": "النظام",
     "sectionQms": "إعداد نظام الجودة",
     "sectionAccreditation": "الاعتماد",
-    "sectionLims": "المختبر",
     "sectionAdmin": "الإدارة",
     "sectionConsultant": "الاستشارات",
+    "sectionCurrentLab": "المختبر الحالي",
     "sectionLabEntities": "كيانات المختبر"
   },
   "nav": {

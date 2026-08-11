@@ -52,11 +52,15 @@
   },
   "sidebar": {
     "allProjects": "همه پروژه‌ها",
+    "sectionOperations": "عملیات",
+    "sectionTechnical": "فنی",
+    "sectionQuality": "سیستم کیفیت",
+    "sectionSystem": "سیستم",
     "sectionQms": "راه‌اندازی سیستم مدیریت کیفیت",
     "sectionAccreditation": "اعتباربخشی",
-    "sectionLims": "آزمایشگاه",
     "sectionAdmin": "مدیریت",
     "sectionConsultant": "مشاوره",
+    "sectionCurrentLab": "آزمایشگاه فعلی",
     "sectionLabEntities": "موجودیت‌های آزمایشگاه"
   },
   "nav": {

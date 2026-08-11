@@ -52,11 +52,15 @@
   },
   "sidebar": {
     "allProjects": "All Projects",
+    "sectionOperations": "Operations",
+    "sectionTechnical": "Technical",
+    "sectionQuality": "Quality System",
+    "sectionSystem": "System",
     "sectionQms": "QMS Setup",
     "sectionAccreditation": "Accreditation",
-    "sectionLims": "Laboratory",
     "sectionAdmin": "Administration",
     "sectionConsultant": "Consultancy",
+    "sectionCurrentLab": "Current Lab",
     "sectionLabEntities": "Lab Entities"
   },
   "nav": {

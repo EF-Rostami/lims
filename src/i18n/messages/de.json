@@ -52,11 +52,15 @@
   },
   "sidebar": {
     "allProjects": "Alle Projekte",
+    "sectionOperations": "Betrieb",
+    "sectionTechnical": "Technik",
+    "sectionQuality": "Qualitätssystem",
+    "sectionSystem": "System",
     "sectionQms": "QMS-Einrichtung",
     "sectionAccreditation": "Akkreditierung",
-    "sectionLims": "Labor",
     "sectionAdmin": "Verwaltung",
     "sectionConsultant": "Beratung",
+    "sectionCurrentLab": "Aktuelles Labor",
     "sectionLabEntities": "Labor-Einheiten"
   },
   "nav": {

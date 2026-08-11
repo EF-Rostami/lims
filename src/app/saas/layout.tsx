@@ -15,6 +15,7 @@ import {
   UserCog,
   UserCircle,
   LogOut,
+  UserCheck,
 } from "lucide-react";
 import { useSaasAuthStore } from "@/features/saas/auth/saas-auth.store";
 import { SaasAuthBootstrap } from "@/features/saas/auth/SaasAuthBootstrap";
@@ -42,6 +43,8 @@ const navGroups: NavGroup[] = [
     heading: "Operations",
     items: [
       { label: "Tenant Users", href: "/saas/tenant-users", icon: Users },
+      { label: "Consultants", href: "/saas/consultancy/consultants", icon: Users },
+      { label: "Consultant Assignments", href: "/saas/consultancy/assignments", icon: UserCheck },
       { label: "Audit Logs", href: "/saas/audit-logs", icon: FileText },
     ],
   },
