@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { FlaskConical, Loader2, ShieldCheck } from "lucide-react";
 import { useLimsAuthStore } from "@/features/lims-auth/lims-auth.store";
 
-const DEMO_SCHEMA = "tenant_dairy_demo";
+const DEMO_SCHEMA = process.env.NEXT_PUBLIC_DEMO_SCHEMA || "tenant_dairy_demo";
 const API_BASE =
   process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
