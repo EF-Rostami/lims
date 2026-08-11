@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Briefcase, Loader2, ShieldCheck } from "lucide-react";
 import { useLimsAuthStore } from "@/features/lims-auth/lims-auth.store";
 
-const DEMO_SCHEMA = process.env.NEXT_PUBLIC_DEMO_SCHEMA || "tenant_dairy_demo";
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 export default function ConsultantDemoPage() {
@@ -21,10 +20,14 @@ export default function ConsultantDemoPage() {
 
     async function startDemo() {
       try {
+        // Fetch demo schema at runtime so no build-time env var is needed
+        const configRes = await fetch(`${API_BASE}/api/v1/lims/auth/demo-config`);
+        const { demo_schema: demoSchema } = await configRes.json();
+
         const res = await fetch(`${API_BASE}/api/v1/lims/auth/demo-consultant`, {
           method: "GET",
           credentials: "include",
-          headers: { "X-Tenant-Schema": DEMO_SCHEMA },
+          headers: { "X-Tenant-Schema": demoSchema },
         });
 
         if (!res.ok) {
@@ -34,8 +37,8 @@ export default function ConsultantDemoPage() {
 
         const data = await res.json();
 
-        sessionStorage.setItem("lims_tenant_schema", DEMO_SCHEMA);
-        useLimsAuthStore.setState({ accessToken: data.access_token, tenantSchema: DEMO_SCHEMA });
+        sessionStorage.setItem("lims_tenant_schema", demoSchema);
+        useLimsAuthStore.setState({ accessToken: data.access_token, tenantSchema: demoSchema });
         await fetchMe();
 
         router.replace("/consultant/home");
@@ -49,7 +52,7 @@ export default function ConsultantDemoPage() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-indigo-50 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-linear-to-br from-sky-50 to-indigo-50 flex items-center justify-center p-6">
       <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-10 max-w-md w-full text-center">
         <div className="w-14 h-14 rounded-2xl bg-sky-600 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-sky-200">
           <Briefcase className="w-7 h-7 text-white" />

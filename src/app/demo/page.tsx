@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { FlaskConical, Loader2, ShieldCheck } from "lucide-react";
 import { useLimsAuthStore } from "@/features/lims-auth/lims-auth.store";
 
-const DEMO_SCHEMA = process.env.NEXT_PUBLIC_DEMO_SCHEMA || "tenant_dairy_demo";
 const API_BASE =
   process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
@@ -23,10 +22,14 @@ export default function DemoPage() {
 
     async function startDemo() {
       try {
+        // Fetch demo schema at runtime so no build-time env var is needed
+        const configRes = await fetch(`${API_BASE}/api/v1/lims/auth/demo-config`);
+        const { demo_schema: demoSchema } = await configRes.json();
+
         const res = await fetch(`${API_BASE}/api/v1/lims/auth/demo`, {
           method: "GET",
           credentials: "include",
-          headers: { "X-Tenant-Schema": DEMO_SCHEMA },
+          headers: { "X-Tenant-Schema": demoSchema },
         });
 
         if (!res.ok) {
@@ -36,8 +39,8 @@ export default function DemoPage() {
 
         const data = await res.json();
 
-        sessionStorage.setItem("lims_tenant_schema", DEMO_SCHEMA);
-        useLimsAuthStore.setState({ accessToken: data.access_token, tenantSchema: DEMO_SCHEMA });
+        sessionStorage.setItem("lims_tenant_schema", demoSchema);
+        useLimsAuthStore.setState({ accessToken: data.access_token, tenantSchema: demoSchema });
         await fetchMe();
 
         router.replace("/demo/welcome");
