@@ -2,7 +2,7 @@ import Link from "next/link";
 import {
   FlaskConical, ClipboardList, Users, BarChart3,
   Wrench, ArrowRight, CheckCircle, Star, Microscope,
-  Zap, Play,
+  Zap, Play, ShieldCheck, Briefcase, Globe,
 } from "lucide-react";
 import { MarketingNav } from "@/components/marketing/nav";
 import { MarketingFooter } from "@/components/marketing/footer";
@@ -45,6 +45,24 @@ const features = [
     title: "Reports & Findings",
     desc: "Auto-generate professional test reports with electronic signatures. Log findings, CAPAs, and track resolution timelines.",
     color: "bg-rose-50 text-rose-600",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Compliance Engine",
+    desc: "Automated ISO 17025 checks score your lab's readiness in real time. Drill into critical failures, track score history, and go into audits with confidence.",
+    color: "bg-indigo-50 text-indigo-600",
+  },
+  {
+    icon: Briefcase,
+    title: "Consultancy Platform",
+    desc: "Consultants manage accreditation projects, gap assessments, and governance meetings across multiple client labs — all from a single multi-lab workspace.",
+    color: "bg-sky-50 text-sky-600",
+  },
+  {
+    icon: Globe,
+    title: "Client Intake Portal",
+    desc: "Send a secure intake link to your steering committee. They submit departments, staff, and instrument data without needing an account — you import with one click.",
+    color: "bg-teal-50 text-teal-600",
   },
 ];
 
@@ -112,23 +130,23 @@ const plans = [
 const testimonials = [
   {
     quote: "BLIMS cut our audit preparation time from three days to a single afternoon. The authorities matrix alone was worth the switch.",
-    name: "Dr. Maryam Karimi",
-    role: "Quality Manager, TehranChem Analytics",
-    initials: "MK",
+    name: "Dr. Emma Whitfield",
+    role: "Quality Manager, Lakeside Analytical Labs",
+    initials: "EW",
     color: "bg-blue-600",
   },
   {
     quote: "We onboarded 80 employees and all instrument records in under two hours using the intake link feature. Remarkable.",
-    name: "Eng. Reza Mohammadi",
-    role: "Lab Director, AryaTest Institute",
-    initials: "RM",
+    name: "Prof. Martin Berger",
+    role: "Lab Director, EuroMed Analytics",
+    initials: "MB",
     color: "bg-violet-600",
   },
   {
     quote: "Our ISO 17025 surveillance audit passed with zero findings. Auditors specifically praised the traceability of our electronic records.",
-    name: "Sara Hosseini",
-    role: "Technical Director, BioQual Labs",
-    initials: "SH",
+    name: "Sophie Chambers",
+    role: "Technical Director, PrecisionBio Institute",
+    initials: "SC",
     color: "bg-emerald-600",
   },
 ];
@@ -223,7 +241,7 @@ function Hero() {
                 <p className="text-xs font-semibold text-gray-500 mb-3">RECENT ORDERS</p>
                 <div className="space-y-2">
                   {[
-                    { id: "ORD-2401", client: "Arya Petrochemical", status: "In Progress", statusColor: "bg-blue-100 text-blue-700" },
+                    { id: "ORD-2401", client: "Nordic Dairy Group", status: "In Progress", statusColor: "bg-blue-100 text-blue-700" },
                     { id: "ORD-2400", client: "National Water Authority", status: "Pending Review", statusColor: "bg-amber-100 text-amber-700" },
                     { id: "ORD-2399", client: "BioPharm Holdings", status: "Completed", statusColor: "bg-green-100 text-green-700" },
                   ].map((o) => (
@@ -328,7 +346,7 @@ function LiveDemoSection() {
     { label: "Test methods", value: "17", sub: "All validated" },
     { label: "Active orders", value: "5", sub: "With real results" },
     { label: "QC runs", value: "11", sub: "Westgard-evaluated" },
-    { label: "IA findings", value: "5", sub: "With CAPA actions" },
+    { label: "ISO clauses", value: "10", sub: "Gap-assessed with tasks" },
   ];
 
   return (
@@ -378,6 +396,7 @@ function LiveDemoSection() {
               "Instrument records & calibration", "Environmental monitoring", "Inventory management",
               "Reference materials", "Staff competence records", "Report templates & CoA",
               "Measurement uncertainty budgets", "Method validation studies", "Customer complaints",
+              "Compliance engine & ISO scoring", "Consultant workspace & meetings", "ISO 17025 gap assessment",
             ].map((item) => (
               <div key={item} className="flex items-center gap-2 text-sm text-blue-100">
                 <CheckCircle className="w-4 h-4 text-green-400 shrink-0" />

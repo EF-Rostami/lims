@@ -14,6 +14,7 @@ export function MarketingNav() {
         <div className="hidden md:flex items-center gap-8 text-sm text-gray-600">
           <Link href="/#features" className="hover:text-gray-900 transition-colors">Features</Link>
           <Link href="/#how-it-works" className="hover:text-gray-900 transition-colors">How it works</Link>
+          <Link href="/for-consultants" className="hover:text-gray-900 transition-colors">For consultants</Link>
           <Link href="/#pricing" className="hover:text-gray-900 transition-colors">Pricing</Link>
           <Link href="/about" className="hover:text-gray-900 transition-colors">About</Link>
         </div>

@@ -142,14 +142,14 @@ const modules = [
   },
   {
     icon: BookOpen,
-    title: "Consultancy & Go-Live",
+    title: "Consultancy & Accreditation",
     color: "bg-sky-50 text-sky-600",
     items: [
-      "Guided setup wizard for initial lab configuration",
-      "Project-based onboarding with milestones",
-      "Go-live readiness checklist (ISO 17025 mapped)",
-      "Assessment and deficiency tracking for consultants",
-      "Bulk data import from intake links",
+      "Project-based ISO 17025 / ISO 15189 accreditation management",
+      "Gap assessment with clause-level findings and recommendations",
+      "Task tracking with due dates, owners, and completion sign-off",
+      "Governance meetings with agenda, decisions, and action items",
+      "Multi-lab consultant workspace — switch between client labs from one login",
     ],
   },
 ];

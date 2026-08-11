@@ -319,9 +319,9 @@ export default function IntakeFormPage() {
         accentColor="bg-emerald-600"
         fields={[
           { key: "employee_id_number", label: "Employee ID", required: true, placeholder: "e.g. EMP001" },
-          { key: "first_name", label: "First Name", required: true, placeholder: "e.g. Ali" },
-          { key: "last_name", label: "Last Name", required: true, placeholder: "e.g. Hosseini" },
-          { key: "email", label: "Email", required: true, placeholder: "e.g. ali@lab.com" },
+          { key: "first_name", label: "First Name", required: true, placeholder: "e.g. Sophie" },
+          { key: "last_name", label: "Last Name", required: true, placeholder: "e.g. Dubois" },
+          { key: "email", label: "Email", required: true, placeholder: "e.g. sophie@lab.com" },
         ]}
       />
 

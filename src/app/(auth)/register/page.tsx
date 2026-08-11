@@ -198,7 +198,7 @@ export default function RegisterPage() {
                   type="text"
                   required
                   className="w-full pl-9 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none text-sm"
-                  placeholder="AryaTest Institute"
+                  placeholder="EuroMed Analytics"
                   value={form.labName}
                   onChange={field("labName")}
                 />
