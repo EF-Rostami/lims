@@ -5,7 +5,8 @@ import {
   BarChart3, AlertTriangle, ScrollText, FolderOpen, PenLine,
   Building2, Briefcase, ShieldCheck, GanttChart, UserCog, FileSpreadsheet,
   Package, Thermometer, Atom, GraduationCap, Beaker, Activity, Sigma, ClipboardCheck,
-  GitBranch, Bell, MessageSquareWarning, FileText, BookOpen, Target, CalendarDays,
+  GitBranch, Bell, MessageSquareWarning, FileText, BookOpen, Target, CalendarDays, LayoutList,
+  UserCircle,
 } from "lucide-react";
 
 export interface NavItem {
@@ -32,26 +33,36 @@ export const FULL_LIMS_ROLES: RoleType[] = [
  */
 export const consultantSidebarConfig: NavItem[] = [
   // Consultant work
-  { title: "Projects", href: "/consultant/projects", icon: Target, section: "consultant" },
-  { title: "Frameworks", href: "/consultant/frameworks", icon: BookOpen, section: "consultant" },
-  { title: "Meetings", href: "/consultant/meetings", icon: CalendarDays, section: "consultant" },
+  { title: "Home", href: "/consultant/home", icon: LayoutDashboard, section: "consultant" },
+  { title: "My Labs", href: "/consultant/labs-overview", icon: LayoutList, section: "consultant" },
+  { title: "Projects", href: "/consultant/projects", icon: Target, section: "current_lab" },
+  { title: "Frameworks", href: "/consultant/frameworks", icon: BookOpen, section: "current_lab" },
+  { title: "Meetings", href: "/consultant/meetings", icon: CalendarDays, section: "current_lab" },
+  { title: "Lab Health", href: "/lims/health", icon: ShieldCheck, section: "current_lab" },
+  { title: "Compliance", href: "/consultant/compliance", icon: Activity, section: "current_lab" },
+  { title: "Gap Assessment", href: "/consultant/gap-assessment", icon: ClipboardCheck, section: "current_lab" },
+  { title: "Documents", href: "/consultant/documents", icon: FileText, section: "current_lab" },
 
   // Lab entities — for lifecycle transitions only (no samples/orders/results/QC)
   { title: "Instruments", href: "/lims/instruments", icon: Wrench, section: "lab_entities" },
   { title: "Methods", href: "/lims/methods", icon: FlaskConical, section: "lab_entities" },
-  { title: "Documents", href: "/lims/qms-documents", icon: FileText, section: "lab_entities" },
   { title: "Competence", href: "/lims/competence", icon: GraduationCap, section: "lab_entities" },
+
+  // Account
+  { title: "My Profile", href: "/consultant/profile", icon: UserCircle, section: "account" },
 ];
 
 export const consultantSectionLabels: Record<string, string> = {
   consultant: "Consultancy",
   lab_entities: "Lab Entities",
+  account: "Account",
 };
 
 export const sidebarConfig: NavItem[] = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, section: "main" },
 
   // QMS Setup (consultant-only setup phase)
+  { title: "Lab Health", href: "/lims/health", icon: ShieldCheck, section: "qms" },
   {
     title: "QMS Setup",
     href: "/consultant",
@@ -118,31 +129,37 @@ export const sidebarConfig: NavItem[] = [
     section: "accreditation",
   },
 
-  // LIMS Operations
-  { title: "Clients", href: "/lims/clients", icon: Building2, section: "lims" },
-  { title: "Samples", href: "/lims/samples", icon: TestTube2, section: "lims" },
-  { title: "Orders", href: "/lims/orders", icon: ClipboardList, section: "lims" },
-  { title: "Results", href: "/lims/results", icon: Microscope, section: "lims" },
-  { title: "Instruments", href: "/lims/instruments", icon: Wrench, section: "lims" },
-  { title: "Inventory", href: "/lims/inventory", icon: Package, section: "lims" },
-  { title: "Environment", href: "/lims/environmental", icon: Thermometer, section: "lims" },
-  { title: "Ref. Materials", href: "/lims/rm", icon: Atom, section: "lims" },
-  { title: "Competence", href: "/lims/competence", icon: GraduationCap, section: "lims" },
-  { title: "Methods", href: "/lims/methods", icon: FlaskConical, section: "lims" },
-  { title: "Validation", href: "/lims/validation", icon: Beaker, section: "lims" },
-  { title: "QC", href: "/lims/qc", icon: Activity, section: "lims" },
-  { title: "Meas. Uncertainty", href: "/lims/mu", icon: Sigma, section: "lims" },
-  { title: "Internal Audits", href: "/lims/ia", icon: ClipboardCheck, section: "lims" },
-  { title: "Reports", href: "/lims/reports", icon: BarChart3, section: "lims" },
-  { title: "Documents", href: "/lims/qms-documents", icon: FileText, section: "lims" },
-  { title: "Complaints", href: "/lims/complaints", icon: MessageSquareWarning, section: "lims" },
-  { title: "Findings", href: "/lims/findings", icon: AlertTriangle, section: "lims" },
-  { title: "CAPA", href: "/lims/capa", icon: GitBranch, section: "lims" },
-  { title: "Files", href: "/lims/files", icon: FolderOpen, section: "lims" },
-  { title: "Signatures", href: "/lims/signatures", icon: PenLine, section: "lims" },
-  { title: "Audit Log", href: "/lims/audit-logs", icon: ScrollText, section: "lims" },
-  { title: "Notifications", href: "/lims/notifications", icon: Bell, section: "lims" },
-  { title: "Lab Settings", href: "/lims/settings", icon: Settings, section: "lims" },
+  // Operations — daily workflow for all lab staff
+  { title: "Clients", href: "/lims/clients", icon: Building2, section: "operations" },
+  { title: "Samples", href: "/lims/samples", icon: TestTube2, section: "operations" },
+  { title: "Orders", href: "/lims/orders", icon: ClipboardList, section: "operations" },
+  { title: "Results", href: "/lims/results", icon: Microscope, section: "operations" },
+  { title: "Reports", href: "/lims/reports", icon: BarChart3, section: "operations" },
+
+  // Technical — analysts and technical manager
+  { title: "Instruments", href: "/lims/instruments", icon: Wrench, section: "technical" },
+  { title: "Methods", href: "/lims/methods", icon: FlaskConical, section: "technical" },
+  { title: "Validation", href: "/lims/validation", icon: Beaker, section: "technical" },
+  { title: "QC", href: "/lims/qc", icon: Activity, section: "technical" },
+  { title: "Meas. Uncertainty", href: "/lims/mu", icon: Sigma, section: "technical" },
+  { title: "Inventory", href: "/lims/inventory", icon: Package, section: "technical" },
+  { title: "Ref. Materials", href: "/lims/rm", icon: Atom, section: "technical" },
+  { title: "Environment", href: "/lims/environmental", icon: Thermometer, section: "technical" },
+
+  // Quality System — quality manager
+  { title: "Documents", href: "/lims/qms-documents", icon: FileText, section: "quality" },
+  { title: "Competence", href: "/lims/competence", icon: GraduationCap, section: "quality" },
+  { title: "Internal Audits", href: "/lims/ia", icon: ClipboardCheck, section: "quality" },
+  { title: "Findings", href: "/lims/findings", icon: AlertTriangle, section: "quality" },
+  { title: "CAPA", href: "/lims/capa", icon: GitBranch, section: "quality" },
+  { title: "Complaints", href: "/lims/complaints", icon: MessageSquareWarning, section: "quality" },
+
+  // System — admin
+  { title: "Notifications", href: "/lims/notifications", icon: Bell, section: "system" },
+  { title: "Files", href: "/lims/files", icon: FolderOpen, section: "system" },
+  { title: "Signatures", href: "/lims/signatures", icon: PenLine, section: "system" },
+  { title: "Audit Log", href: "/lims/audit-logs", icon: ScrollText, section: "system" },
+  { title: "Lab Settings", href: "/lims/settings", icon: Settings, section: "system" },
 
   // Admin
   { title: "Users", href: "/lims/hr/users", icon: Users, requiredRoles: ["admin"], section: "admin" },

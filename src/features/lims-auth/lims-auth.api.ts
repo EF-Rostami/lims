@@ -117,6 +117,51 @@ export const limsAuthApi = {
       },
     });
   },
+
+  updateProfile: async (
+    accessToken: string,
+    tenantSchema: string,
+    firstName: string,
+    lastName: string
+  ): Promise<TenantUserMetadata> => {
+    const res = await fetch(`${API_BASE}/api/v1/lims/auth/me`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        "x-tenant-schema": tenantSchema,
+      },
+      body: JSON.stringify({ first_name: firstName, last_name: lastName }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.detail || "Profile update failed");
+    }
+    return res.json();
+  },
+
+  changePassword: async (
+    accessToken: string,
+    tenantSchema: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<void> => {
+    const res = await fetch(`${API_BASE}/api/v1/lims/auth/me/change-password`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        "x-tenant-schema": tenantSchema,
+      },
+      body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.detail || "Password change failed");
+    }
+  },
 };
 
 export { isMFARequired };
